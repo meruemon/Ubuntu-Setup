@@ -279,3 +279,19 @@ Community版`pycharm-community`も同様の方法でインストールできる�
 $ sudo snap install pycharm-community --classic
 ```
 
+## ■ ユーザの追加
+
+以上までの作業は，OSインストール時に作成したユーザで行ってきたが，実験などは，個別のユーザで行う．
+
+`adduser`コマンドでユーザを作成する．任意のユーザ名を入力し，指示に従ってパスワードを入力する.
+それ以外は，未入力のままEnterを押してよい．
+
+```
+$ sudo adduser 【ユーザ名】
+```
+
+`gpasswd`コマンドで作成したユーザを`docker`グループに追加する．
+
+```
+sudo gpasswd -a 【ユーザ名】 docker
+```
