@@ -290,8 +290,8 @@ $ sudo snap install pycharm-community --classic
 $ sudo adduser 【ユーザ名】
 ```
 
-`gpasswd`コマンドで作成したユーザを`docker`グループに追加する．
+`gpasswd`コマンドで，作成したユーザを`docker`グループに追加する．
 
 ```
-sudo gpasswd -a 【ユーザ名】 docker
+$ sudo gpasswd -a 【ユーザ名】 docker
 ```
