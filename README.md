@@ -263,4 +263,9 @@ $ sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
 
 ## ■ よく使うソフトウェアのインストール
 
+### Pycharm
+
+Python用の統合環境（IDE）．二つのバージョンClassic（無料）とProffessional（有料）がある．学生は，Academicライセンスを用いるとJetBrain製品を全て無料で利用できるため，[ここから](https://www.jetbrains.com/ja-jp/community/education/#students)申請することをお勧めする．申請の際は，大学のメールアドレス`***@kansai-u.ac.jp`を使用する．
+
+
 
