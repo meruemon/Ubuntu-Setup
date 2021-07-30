@@ -5,14 +5,14 @@ OSはインストール時点で最新のLTS (Long Term Support：長期サポ�
 
 [Docker](https://ja.wikipedia.org/wiki/Docker)を前提としているため，インストールするパッケージは必要最低限としている.
 
-なお，管理権限が必要な操作は，`sudo`を付けコマンドを付ける点に注意する.
+なお，管理者権限が必要な操作は，コマンドの先頭に`sudo`を付ける点に注意する.
 
 ## Proxy設定
 
 大学からのインターネット接続は全て，Proxyサーバを経由して管理されている.
 内部LAN（研究室）からインターネットに接続するために，その宛先であるProxyサーバ情報を登録する.
 
-### 個別ユーザごとの環境設定
+### 個別ユーザごとに行う全般の設定
 
 `vi`コマンドで`.bashrc`を開き，末尾に以下を追記する.
 
@@ -29,7 +29,7 @@ export ftp_proxy="http://proxy.kansai-u.ac.jp:8080"
 $ wget https://yahoo.co.jp | more
 ```
 
-### apt-get
+### apt-getの設定
 
 `sudo`を付けて，`vi`コマンドで`/etc/apt/apt.conf.d/30proxy`を開き以下を追記する.
 
@@ -51,6 +51,7 @@ $ sudo apt-get update
 $ sudo apt update && sudo apt upgrade
 ```
 
+(apt-getコマンド)[https://webkaru.net/linux/apt-get-command/]は，Debian系のディストリビューション（DebianやUbuntu）のパッケージ管理システムであるAPT（Advanced Package Tool）ライブラリを利用してパッケージを操作・管理するコマンドです.
 以下に，`apt-get`コマンドの概要を示す.`apt-get`は`apt`と省略可能．
 
 | コマンド|  内容  |
