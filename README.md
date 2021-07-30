@@ -44,9 +44,17 @@ $ sudo apt-get update
 $ sudo apt update && sudo apt upgrade
 ```
 
+以下に，`apt-get`コマンドの概要を示す.`apt-get`は`apt`と省略可能．
+
 | コマンド|  内容  |
 | ---- | ---- |
 | `apt-get install [package]` |  パッケージのインストール/更新  |
 | `apt-get update`  | パッケージリストの更新  |
 | `apt-get upgrade` | インストールされてるパッケージの更新 |
 | `apt-get dist-upgrade` | インストールされてるカーネルの更新(Ubuntu)/ディストリビューションの更新(Debian) |
+
+`update`はパッケージリストが更新されるだけであり，最新のリストを参照して`upgrade`を用いてパッケージの更新を行う.
+
+## NVIDIA Driver のインストール
+
+
