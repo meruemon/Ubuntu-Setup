@@ -52,7 +52,18 @@ $ sudo apt-get update
 ファイル名やディレクトリ（フォルダ）名が日本語であると不都合な場面が多いため，英語に変換する.
 
 ```
-LANG=C xdg-user-dirs-gtk-update
+$ LANG=C xdg-user-dirs-gtk-update
+```
+
+### 時刻設定
+
+```
+$ sudo vim /etc/systemd/timesyncd.conf
+
+NTP=ntp.kansai-u.ac.jp
+
+$ sudo systemctl restart systemd-timesyncd.service
+$ sudo systemctl -l status systemd-timesyncd
 ```
 
 ## システム更新
@@ -76,4 +87,27 @@ $ sudo apt update && sudo apt upgrade
 
 ## NVIDIA Driver のインストール
 
+### PPA の追加
 
+```
+$ sudo add-apt-repository ppa:graphics-drivers/ppa
+$ sudo apt update
+```
+
+### 推奨ドライバの確認
+
+```
+$ ubuntu-drivers devices
+```
+
+### ドライバのインストール
+
+上記操作で`recommended`と表示されたバージョンのドライバをインストールする.
+
+```
+$ sudo apt install nvidia-driver-440
+```
+
+※`autoinstall`を使用しても良いが，インストールしたバージョンを意識するために指定する.
+
+`nvidia-smi`コマンドを実行してGPUの情報が表示されれば完了.
