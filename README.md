@@ -20,8 +20,8 @@ OSインストール時にも，『最小インストール』を選択し，適
 ```
 $ vi ~/.bashrc
 export https_proxy="http://proxy.kansai-u.ac.jp:8080/"
-export http_proxy="http://proxy.kansai-u.ac.jp:8080"
-export ftp_proxy="http://proxy.kansai-u.ac.jp:8080"
+export http_proxy="http://proxy.kansai-u.ac.jp:8080/"
+export ftp_proxy="http://proxy.kansai-u.ac.jp:8080/"
 ```
 
 `wget`コマンドで動作確認を行う.
