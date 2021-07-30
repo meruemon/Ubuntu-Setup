@@ -45,6 +45,15 @@ Acquire::https { Proxy "http://proxy.kansai-u.ac.jp:8080/"; };
 ```
 $ sudo apt-get update
 ```
+## 初期設定
+
+### ホームディレクトリの英語化
+
+ファイル名やディレクトリ（フォルダ）名が日本語であると不都合な場面が多いため，英語に変換する.
+
+```
+LANG=C xdg-user-dirs-gtk-update
+```
 
 ## システム更新
 
