@@ -114,7 +114,7 @@ $ sudo apt install nvidia-driver-440
 
 ## Dockerのインストール
 
-[公式マニュアル](https://docs.docker.com/engine/install/ubuntu/)を参考にインストールする.
+[公式マニュアル](https://docs.docker.com/engine/install/ubuntu/)に従って，インストールする.
 
 ### 依存パッケージのインストール
 
@@ -156,6 +156,28 @@ $ sudo docker run hello-world
 
 ## Nvidia Docker
 
-ここでは，[NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker)をインストールして，Dockerの仮想環境でGPUを使用可能とする設定を行う.
+[NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker)をインストールして，Dockerの仮想環境でGPUを使用可能とする設定を行う.
+ここでも，[公式マニュアル](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)に従って，インストールする.
 
+`Setting up NVIDIA Container Toolkit`から開始する．まずは，パッケージリストに該当パッケージを追加する．
+
+```
+$ distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+   && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
+   && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+```
+
+次に，パッケージリスト更新し，`nvidia-docker2`をインストールする．
+
+```
+$ sudo apt-get update
+$ sudo apt-get install nvidia-docker2
+```
+
+最後に，Dockerを再起動して，動作検証を行う．`nvidia-smi`の実行結果が表示されたら成功．
+
+```
+$ sudo systemctl restart docker
+$ sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
+```
 
