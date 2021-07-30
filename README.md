@@ -81,7 +81,7 @@ $ sudo systemctl restart snapd
 $ LANG=C xdg-user-dirs-gtk-update
 ```
 
-### 時刻設定
+### (Optional) 時刻設定
 
 ```
 $ sudo vim /etc/systemd/timesyncd.conf
