@@ -1,6 +1,6 @@
 # Ubuntu-Setup
 
-[Ubuntu 20.04.1 LTS 日本語Remix](https://www.ubuntulinux.jp/products/JA-Localized/download)のセットアップ方法を以下に記載する.
+(Ubuntu 20.04.1 LTS 日本語Remix)[https://www.ubuntulinux.jp/products/JA-Localized/download]のセットアップ方法を以下に記載する.
 OSはインストール時点で最新のLTS (Long Term Support：長期サポート)版を使用する.
 
 実験環境は，[Docker](https://ja.wikipedia.org/wiki/Docker)を前提としているため，インストールするパッケージは必要最低限としている.
@@ -151,3 +151,5 @@ $ sudo apt-get install docker-ce docker-ce-cli containerd.io
 ```
 $ sudo docker run hello-world
 ```
+
+## Nvidia Docker
