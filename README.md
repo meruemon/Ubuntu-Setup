@@ -45,6 +45,32 @@ Acquire::https { Proxy "http://proxy.kansai-u.ac.jp:8080/"; };
 ```
 $ sudo apt-get update
 ```
+
+### snapの設定
+
+[sanp](https://gihyo.jp/admin/serial/01/ubuntu-recipe/0654)コマンドは[Pycharm](https://www.jetbrains.com/ja-jp/pycharm/)をコマンドラインからインストールする際に利用する．
+
+`sudo`を付けて，`mkdir`コマンドでディレクトリ`/etc/systemd/system/snapd.service.d`を作成する.
+
+```
+$ sudo mkdir /etc/systemd/system/snapd.service.d
+```
+
+ファイル`http-proxy.conf`を作成し，`echo`コマンドを用いてプロキシ情報を追加する．
+
+```
+$ echo '[Service]' | sudo tee -a /etc/systemd/system/snapd.service.d/http-proxy.conf
+$ echo 'Environment="HTTP_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo tee -a /etc/systemd/system/snapd.service.d/http-proxy.conf
+$ echo 'Environment="HTTPS_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo tee -a /etc/systemd/system/snapd.service.d/http-proxy.conf
+```
+
+最後に，snapの設定をリロードする.
+
+```
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart snapd
+```
+
 ## 初期設定
 
 ### ホームディレクトリの英語化
