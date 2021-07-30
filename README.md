@@ -19,7 +19,7 @@ OSインストール時にも，『最小インストール』を選択し，適
 | `Esc`+`:q` | 閉じる |
 | `Esc`+`:wq` | 保存して閉じる |
 
-あわせて，ターミナル操作のための`よく使うLinuxコマンド`を調べる．
+あわせて，ターミナル操作のための[よく使うLinuxコマンド](https://www.google.com/search?q=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&sxsrf=ALeKk01adUXnJjdo8eDpMdjWbD_nk4tVbQ%3A1627643043700&ei=o9wDYeuhKqeQr7wPsvWq4A0&oq=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&gs_lcp=Cgdnd3Mtd2l6EAMyCwgAEIAEEAQQJRAgSgQIQRgAUNMgWNMgYJsiaABwAngAgAGnAogBggOSAQUxLjAuMZgBAKABAqABAcABAQ&sclient=gws-wiz&ved=0ahUKEwir_8Lr0oryAhUnyIsBHbK6CtwQ4dUDCA8&uact=5)を調べる．
 
 ## Proxy設定
 
