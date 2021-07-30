@@ -139,6 +139,8 @@ $ echo \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
+### インストールと検証
+
 追加したパッケージリストを基に，Dockerをインストールする.
 
 ```
