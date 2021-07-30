@@ -111,3 +111,43 @@ $ sudo apt install nvidia-driver-440
 ※`autoinstall`を使用しても良いが，インストールしたバージョンを意識するために指定する.
 
 `nvidia-smi`コマンドを実行してGPUの情報が表示されれば完了.
+
+## Dockerのインストール
+
+(公式マニュアル)[https://docs.docker.com/engine/install/ubuntu/]を参考にインストールする.
+
+### 依存パッケージのインストール
+
+```
+$ sudo apt-get update
+$ sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+```
+
+### GPG keyの登録とパッケージリストへの追加
+
+Dockerをパッケージリストに追加し，インストールできるようにする．まずは，GPG keyを追加する.
+
+```
+$  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+```
+
+次に，パッケージリストにDockerを追加する.
+
+```
+$ echo \
+  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+追加したパッケージリストを基に，Dockerをインストールする.
+
+```
+$ sudo apt-get update
+$ sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
+
+最後に，Dockerの動作検証を行う.
+
+```
+$ sudo docker run hello-world
+```
