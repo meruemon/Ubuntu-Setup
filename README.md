@@ -83,6 +83,8 @@ $ LANG=C xdg-user-dirs-gtk-update
 
 ### (Optional) 時刻設定
 
+大学のNTPサーバを利用して，正確な時刻を取得する．
+
 ```
 $ sudo vim /etc/systemd/timesyncd.conf
 
