@@ -174,7 +174,7 @@ $ sudo apt-get update
 $ sudo apt-get install nvidia-docker2
 ```
 
-最後に，Dockerを再起動して，動作検証を行う．`nvidia-smi`の実行結果が表示されたら成功．
+最後に，Dockerを再起動して，動作検証を行う．`nvidia-smi`コマンドの実行結果（GPU情報）が表示されたら成功．
 
 ```sh
 $ sudo systemctl restart docker
