@@ -6,7 +6,17 @@ OSはインストール時点で最新のLTS (Long Term Support：長期サポ�
 実験環境は，[Docker](https://ja.wikipedia.org/wiki/Docker)を前提としているため，インストールするパッケージは必要最低限としている.
 OSインストール時にも，『最小インストール』を選択し，適宜パッケージをインストールする.
 
-以降，記載順に設定を行い，管理者権限が必要な操作には，コマンドの先頭に`sudo`を付ける点に注意する.
+以降，記載順に設定を行い，管理者権限が必要な操作には，コマンドの先頭に`sudo`を付ける点に注意する．また，ファイルへのテキストの追加はターミナルから`vi`コマンドを使用する.
+基本的な[操作方法](https://eng-entrance.com/linux-command-vi)を事前に確認する．
+
+必要最低限の操作方法
+| コマンド|  内容  |
+| ---- | ---- |
+| `i` |  入力（インサート）モードに切り替え  |
+| `Esc`  | コマンドモードに切り替え  |
+| `h,l,j,k` | コマンドモード中に左右上下にカーソル移動（矢印キーも使用可） |
+| `Esc`+`:w` | 保存 |
+| `Esc`+`:q` | ファイルを閉じる |
 
 ## Proxy設定
 
@@ -182,6 +192,45 @@ $ sudo apt-get install docker-ce docker-ce-cli containerd.io
 $ sudo docker run hello-world
 ```
 
+### Proxy設定 for Docker
+
+`sudo`を付けて，`mkdir`コマンドでディレクトリ`/etc/systemd/system/docker.service.d`を作成する.
+
+```
+$ sudo mkdir /etc/systemd/system/docker.service.d
+```
+
+ファイル`http-proxy.conf`を作成し，`echo`コマンドを用いてプロキシ情報を追加する．
+
+```
+$ echo '[Service]' | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
+$ echo 'Environment="HTTP_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
+$ echo 'Environment="HTTPS_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
+```
+
+ファイル`dns.conf`を作成し，`echo`コマンドを用いてDNS情報を追加する．`192.168.170.1`は研究室ルータのIPアドレスを指す．
+
+```
+$ echo '[Service]' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
+$ echo 'Environment="DOCKER_NETWORK_OPTIONS=--dns 192.168.170.1"' | sudo tee -a /etc/systemd/system/Tdocker.service.d/dns.conf
+$ echo 'ExecStart=' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
+$ echo 'ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_NETWORK_OPTIONS' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
+```
+
+`sudo`を付けて，`vi`コマンドでディレクトリ`/etc/default/docker`にプロキシ情報を追加する.
+
+```
+$ sudo vim /etc/default/docker
+export http_proxy=http://proxy.itc.kansai-u.ac.jp:8080/
+export https_proxy=http://proxy.itc.kansai-u.ac.jp:8080/
+```
+
+```
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart docker
+```
+
+
 ## Nvidia Docker
 
 [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker)をインストールして，Dockerの仮想環境でGPUを使用可能とする設定を行う.
@@ -208,4 +257,7 @@ $ sudo apt-get install nvidia-docker2
 $ sudo systemctl restart docker
 $ sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
 ```
+
+## DockerのProxy設定
+
 
