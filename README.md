@@ -52,6 +52,7 @@ $ sudo apt update && sudo apt upgrade
 ```
 
 [apt-getコマンド](https://webkaru.net/linux/apt-get-command/)は，Debian系のディストリビューション（DebianやUbuntu）のパッケージ管理システムであるAPT（Advanced Package Tool）ライブラリを利用してパッケージを操作・管理するコマンドです.
+
 以下に，`apt-get`コマンドの概要を示す.`apt-get`は`apt`と省略可能．
 
 | コマンド|  内容  |
