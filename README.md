@@ -153,3 +153,7 @@ $ sudo docker run hello-world
 ```
 
 ## Nvidia Docker
+
+ここでは，[NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker)をインストールして，Dockerの仮想環境でGPUを使用可能とする設定を行う.
+
+
