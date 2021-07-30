@@ -169,14 +169,14 @@ $ distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
 
 次に，パッケージリスト更新し，`nvidia-docker2`をインストールする．
 
-```
+```bash
 $ sudo apt-get update
 $ sudo apt-get install nvidia-docker2
 ```
 
 最後に，Dockerを再起動して，動作検証を行う．`nvidia-smi`の実行結果が表示されたら成功．
 
-```
+```bash
 $ sudo systemctl restart docker
 $ sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
 ```
