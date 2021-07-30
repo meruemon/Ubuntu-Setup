@@ -21,7 +21,7 @@ OSインストール時にも，『最小インストール』を選択し，適
 
 あわせて，ターミナル操作のための[よく使うLinuxコマンド](https://www.google.com/search?q=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&sxsrf=ALeKk01adUXnJjdo8eDpMdjWbD_nk4tVbQ%3A1627643043700&ei=o9wDYeuhKqeQr7wPsvWq4A0&oq=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&gs_lcp=Cgdnd3Mtd2l6EAMyCwgAEIAEEAQQJRAgSgQIQRgAUNMgWNMgYJsiaABwAngAgAGnAogBggOSAQUxLjAuMZgBAKABAqABAcABAQ&sclient=gws-wiz&ved=0ahUKEwir_8Lr0oryAhUnyIsBHbK6CtwQ4dUDCA8&uact=5)を調べる．
 
-## Proxy設定
+## ■ Proxy設定
 
 大学からのインターネット接続は全て，Proxyサーバを経由して管理されている.
 内部LAN（研究室）からインターネットに接続するために，その宛先であるProxyサーバ情報を登録する.
@@ -84,7 +84,7 @@ $ sudo systemctl daemon-reload
 $ sudo systemctl restart snapd
 ```
 
-## 初期設定
+## ■ 初期設定
 
 ### ホームディレクトリの英語化
 
@@ -107,7 +107,7 @@ $ sudo systemctl restart systemd-timesyncd.service
 $ sudo systemctl -l status systemd-timesyncd
 ```
 
-## システム更新
+## ■ システム更新
 
 ```
 $ sudo apt update && sudo apt upgrade
@@ -126,7 +126,7 @@ $ sudo apt update && sudo apt upgrade
 
 `update`はパッケージリストが更新されるだけであり，最新のリストを参照して`upgrade`を用いてパッケージの更新を行う.
 
-## NVIDIA Driver のインストール
+## ■ NVIDIA Driver のインストール
 
 ### PPA の追加
 
@@ -153,7 +153,7 @@ $ sudo apt install nvidia-driver-440
 
 `nvidia-smi`コマンドを実行してGPUの情報が表示されれば完了.
 
-## Dockerのインストール
+## ■ Dockerのインストール
 
 [公式マニュアル](https://docs.docker.com/engine/install/ubuntu/)に従って，インストールする.
 
@@ -234,7 +234,7 @@ $ sudo systemctl restart docker
 ```
 
 
-## Nvidia Docker
+## ■ Nvidia Docker
 
 [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker)をインストールして，Dockerの仮想環境でGPUを使用可能とする設定を行う.
 ここでも，[公式マニュアル](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)に従って，インストールする.
@@ -261,6 +261,6 @@ $ sudo systemctl restart docker
 $ sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
 ```
 
-## DockerのProxy設定
+## ■ よく使うソフトウェアのインストール
 
 
