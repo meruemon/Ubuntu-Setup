@@ -45,11 +45,16 @@ $ docker exec -it [container_name] bash
 Dockerfileは，Dockerイメージを作成するための設計図です．
 
 ```Dockerfile
-FROM OS(Docker imageから選ぶ)
+FROM [image_name]:[tag]（存在しなければレジストリからダウンロードされる）
 
-RUN Linuxコマンド
+RUN Linuxコマンドを実行
+# Ex. RUN apt-get update
 
-ENV 環境変数
+ENV 環境変数を設定
+# Ex. ENV USER student
+
+WORKDIR ワークディレクトリを設定
+# Ex. WORKDIR /app
 ```
 
 OSをセットアップするイメージですので，[ここで](ubuntu_install.md)で説明したことを記述します．
