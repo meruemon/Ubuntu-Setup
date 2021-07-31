@@ -424,6 +424,19 @@ $ sudo snap install pycharm-community --classic
 $ sudo apt install vim
 ```
 
+### VScode
+
+GUIのテキストエディタ．
+[ここから](https://code.visualstudio.com/download)`.deb`をダウンロードする．ファイルは`Downloads`に保存されるため，
+端末でディレクトリを移動して，インストールを行う．
+
+```
+$ cd Downloads/
+$ ls
+code_1.58.2-1626302803_amd64.deb
+$ sudo dpkg -i code_1.58.2-1626302803_amd64.deb
+```
+
 ### LibreOffice
 
 Word，Excelなどに代わるオープンソースオフィス．
@@ -444,7 +457,7 @@ $ sudo apt install libreoffice-l10n-ja libreoffice-help-ja
 
 ```
 $ sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-$ sudo wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+$ wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
 $ sudo apt update
 $ sudo apt install google-chrome-stable
 ```
