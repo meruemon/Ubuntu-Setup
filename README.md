@@ -8,9 +8,8 @@ OSインストール時にも，『最小インストール』を選択し，適
 
 以降，『端末』を開いて，記載順に設定を行う．`$`マークに続く入力がコマンド部分を表す．管理者権限が必要な操作には，コマンドの先頭に`sudo`を付ける点に注意する．また，`vi`コマンドを使用して端末からファイル編集を行う.なお，端末はショートカットキー`Ctrl+Alt+t`を入力して開くことができる．
 
-基本的な[操作方法](https://eng-entrance.com/linux-command-vi)を事前に確認する．
+必要最低限の`vi`コマンドの[操作方法](https://eng-entrance.com/linux-command-vi)を事前に確認する．
 
-必要最低限のviの操作方法
 | コマンド|  内容  |
 | ---- | ---- |
 | `i, a, o` |  入力（インサート）モードに切り替え |
@@ -20,7 +19,7 @@ OSインストール時にも，『最小インストール』を選択し，適
 | `Esc`+`:q` | 閉じる |
 | `Esc`+`:wq` | 保存して閉じる |
 
-あわせて，ターミナル操作のための[よく使うLinuxコマンド](https://www.google.com/search?q=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&sxsrf=ALeKk01adUXnJjdo8eDpMdjWbD_nk4tVbQ%3A1627643043700&ei=o9wDYeuhKqeQr7wPsvWq4A0&oq=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&gs_lcp=Cgdnd3Mtd2l6EAMyCwgAEIAEEAQQJRAgSgQIQRgAUNMgWNMgYJsiaABwAngAgAGnAogBggOSAQUxLjAuMZgBAKABAqABAcABAQ&sclient=gws-wiz&ved=0ahUKEwir_8Lr0oryAhUnyIsBHbK6CtwQ4dUDCA8&uact=5)を調べる．
+あわせて，端末で[よく使うLinuxコマンド](https://www.google.com/search?q=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&sxsrf=ALeKk01adUXnJjdo8eDpMdjWbD_nk4tVbQ%3A1627643043700&ei=o9wDYeuhKqeQr7wPsvWq4A0&oq=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&gs_lcp=Cgdnd3Mtd2l6EAMyCwgAEIAEEAQQJRAgSgQIQRgAUNMgWNMgYJsiaABwAngAgAGnAogBggOSAQUxLjAuMZgBAKABAqABAcABAQ&sclient=gws-wiz&ved=0ahUKEwir_8Lr0oryAhUnyIsBHbK6CtwQ4dUDCA8&uact=5)を調べる．
 
 ## ■ Proxy設定
 
@@ -464,10 +463,24 @@ $ sudo apt install google-chrome-stable
 
 ### VLC
 
-動画再生
+マルチメディアプレイヤー
 
 ```
 $ sudo apt install vlc 
+```
+
+### htop
+
+CPU・メモリ使用率，プロセスなどを端末で表示する．
+
+```
+$ sudo apt install htop
+```
+
+動作確認
+
+```
+$ htop
 ```
 
 ## ■ ユーザの追加
