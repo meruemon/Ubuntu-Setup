@@ -75,19 +75,19 @@ Docker Composeは，Dockerイメージのビルドや各コンテナの起動・
 version: '2.3'
 services:
   dev:
-    container_name: [container_name]
-    image: [image_name]:[tag]
+    container_name: [container_name] <-- 任意のコンテナ名
+    image: [image_name]:[tag] <-- pullあるはbuildしたイメージとタグを指定
     runtime: nvidia
     command: /bin/bash 
     working_dir: /home/student/Programs <-- 起動時のワークディレクトリを指定
     volumes:
         - /tmp/.X11-unix:/tmp/.X11-unix
-        - /home/student/Programs:/home/student/Programs　<-- ホストと仮想環境のディレクトリを共有
+        - /home/student/Programs:/home/student/Programs　<-- ホストとコンテナのディレクトリを共有
     environment:
         - DISPLAY=$DISPLAY
         - TERM=xterm-256color
     ports:
-        - "8888:8888"　<-- ホストと仮想環境のポート番号を共有（8888はjupyter notebookのポート番号）
+        - "8888:8888"　<-- ホストとコンテナのポート番号を共有（8888はjupyter notebookのポート番号）
     ulimits:
         memlock: -1
         stack: 67108864
