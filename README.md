@@ -6,7 +6,7 @@ OSはインストール時点で最新のLTS (Long Term Support：長期サポ�
 実験環境は，[Docker](https://ja.wikipedia.org/wiki/Docker)を前提としているため，インストールするパッケージは必要最低限としている.
 OSインストール時にも，『最小インストール』を選択し，適宜パッケージをインストールする.
 
-以降，『端末』を開いて，記載順に設定を行い，管理者権限が必要な操作には，コマンドの先頭に`sudo`を付ける点に注意する．また，`vi`コマンドを使用して端末からファイル編集を行う.なお，端末はショートカットキー`Ctrl+Alt+t`を入力して開くことができる．
+以降，『端末』を開いて，記載順に設定を行う．`$`マークに続く入力がコマンド部分を表す．管理者権限が必要な操作には，コマンドの先頭に`sudo`を付ける点に注意する．また，`vi`コマンドを使用して端末からファイル編集を行う.なお，端末はショートカットキー`Ctrl+Alt+t`を入力して開くことができる．
 
 基本的な[操作方法](https://eng-entrance.com/linux-command-vi)を事前に確認する．
 
@@ -52,6 +52,8 @@ $ wget https://www.yahoo.co.jp | more
 
 ```
 $ sudo vi /etc/apt/apt.conf.d/30proxy
+[sudo] user のパスワード: <- パスワードを入力
+
 Acquire::http { Proxy "http://proxy.itc.kansai-u.ac.jp:8080/"; };
 Acquire::https { Proxy "http://proxy.itc.kansai-u.ac.jp:8080/"; };
 ```
@@ -196,7 +198,39 @@ $ sudo apt install nvidia-driver-470
 
 ここでは，`autoinstall`を使用しても良いが，インストールしたバージョンを意識するために指定する.
 
-`nvidia-smi`コマンドを実行してGPUの情報が表示されれば完了.
+インストールした内容を反映させるため，再起動を行う．
+
+```
+sudo reboot
+```
+
+再起動後，`nvidia-smi`コマンドを実行してGPUの情報が表示されれば完了.
+
+```
+$ nvidia-smi
+Sat Jul 31 12:51:47 2021       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 470.57.02    Driver Version: 470.57.02    CUDA Version: 11.4     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  Quadro P600         Off  | 00000000:01:00.0  On |                  N/A |
+| 34%   43C    P5    N/A /  N/A |    184MiB /  1998MiB |      3%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|    0   N/A  N/A       852      G   /usr/lib/xorg/Xorg                 39MiB |
+|    0   N/A  N/A      1394      G   /usr/lib/xorg/Xorg                 48MiB |
+|    0   N/A  N/A      1522      G   /usr/bin/gnome-shell               88MiB |
++-----------------------------------------------------------------------------+
+```
 
 ## ■ Dockerのインストール
 
@@ -207,6 +241,8 @@ $ sudo apt install nvidia-driver-470
 ```
 $ sudo apt-get update
 $ sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+...
+続行しますか? [Y/n] y <- yを入力してエンターを押す
 ```
 
 ### GPG keyの登録とパッケージリストへの追加
@@ -232,12 +268,6 @@ $ echo \
 ```
 $ sudo apt-get update
 $ sudo apt-get install docker-ce docker-ce-cli containerd.io
-```
-
-最後に，Dockerの動作検証を行う.
-
-```
-$ sudo docker run hello-world
 ```
 
 ### Proxy設定 for Docker
@@ -268,7 +298,7 @@ $ echo 'ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_NETWORK_OPTIONS' | sudo tee 
 `sudo`を付けて，`vi`コマンドでディレクトリ`/etc/default/docker`にプロキシ情報を追加する.
 
 ```
-$ sudo vim /etc/default/docker
+$ sudo vi /etc/default/docker
 export http_proxy=http://proxy.itc.kansai-u.ac.jp:8080/
 export https_proxy=http://proxy.itc.kansai-u.ac.jp:8080/
 ```
@@ -278,6 +308,38 @@ $ sudo systemctl daemon-reload
 $ sudo systemctl restart docker
 ```
 
+
+最後に，Dockerの動作検証を行う.
+
+```
+$ sudo docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+b8dfde127a29: Pull complete 
+Digest: sha256:df5f5184104426b65967e016ff2ac0bfcd44ad7899ca3bbcf8e44e4461491a9e
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+```
 
 ## ■ Nvidia Docker
 
@@ -304,6 +366,36 @@ $ sudo apt-get install nvidia-docker2
 ```sh
 $ sudo systemctl restart docker
 $ sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
+Unable to find image 'nvidia/cuda:11.0-base' locally
+11.0-base: Pulling from nvidia/cuda
+54ee1f796a1e: Pull complete 
+f7bfea53ad12: Pull complete 
+46d371e02073: Pull complete 
+b66c17bbf772: Pull complete 
+3642f1a6dfb3: Pull complete 
+e5ce55b8b4b9: Pull complete 
+155bc0332b0a: Pull complete 
+Digest: sha256:774ca3d612de15213102c2dbbba55df44dc5cf9870ca2be6c6e9c627fa63d67a
+Status: Downloaded newer image for nvidia/cuda:11.0-base
+Sat Jul 31 04:00:53 2021       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 470.57.02    Driver Version: 470.57.02    CUDA Version: 11.4     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  Quadro P600         Off  | 00000000:01:00.0  On |                  N/A |
+| 34%   46C    P0    N/A /  N/A |    345MiB /  1998MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
++-----------------------------------------------------------------------------+
 ```
 
 ## ■ よく使うソフトウェアのインストール
@@ -333,10 +425,56 @@ $ sudo snap install pycharm-community --classic
 
 ```
 $ sudo adduser 【ユーザ名】
+ユーザー `student' を追加しています... <- 【ユーザ名】にstudentを入力した例
+新しいグループ `student' (1001) を追加しています...
+新しいユーザー `student' (1001) をグループ `student' に追加しています...
+ホームディレクトリ `/home/student' を作成しています...
+`/etc/skel' からファイルをコピーしています...
+新しいパスワード: <- 任意のパスワードを入力（表示されない．誤入力した場合は，複数回BackSpaceを押し，最初から打ち直す）
+新しいパスワードを再入力してください: 
+passwd: パスワードは正しく更新されました
+student のユーザ情報を変更中
+新しい値を入力してください。標準設定値を使うならリターンを押してください
+	フルネーム []: <- 以降，何も入力しないでエンターを押す
+	部屋番号 []: 
+	職場電話番号 []: 
+	自宅電話番号 []: 
+	その他 []: 
+以上で正しいですか? [Y/n] y <- yを入力してエンターを押す
 ```
 
 `gpasswd`コマンドで，作成したユーザを`docker`グループに追加する．
 
 ```
 $ sudo gpasswd -a 【ユーザ名】 docker
+```
+
+コマンドラインからユーザを切り替えて，動作確認を行う．
+
+```
+$ su - 【ユーザ名】
+パスワード:
+```
+
+```
+$ docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
+Sat Jul 31 04:06:35 2021       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 470.57.02    Driver Version: 470.57.02    CUDA Version: 11.4     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  Quadro P600         Off  | 00000000:01:00.0  On |                  N/A |
+| 34%   40C    P0    N/A /  N/A |    316MiB /  1998MiB |      0%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
++-----------------------------------------------------------------------------+
 ```
