@@ -57,7 +57,7 @@ WORKDIR ワークディレクトリを設定
 # Ex. WORKDIR /app
 ```
 
-[サンプル](docker/Dockerfile)には，NGCからpullしてきた基礎となるイメージを拡張する例を示してます．
+[Dockerfile](docker/Dockerfile)には，NGCからpullしてきた基礎となるイメージを拡張する例を示してます．
 OSをセットアップするイメージですので，[ここで](ubuntu_install.md)で説明したことを記述します．
 環境変数`USER`と`USER_ID`はそれぞれの環境に合わせて変更します．
 `id`コマンドを入力すると自分のユーザ名とIDを確認できます．
@@ -69,7 +69,7 @@ uid=1001(student) gid=1001(student) ...
 
 ## Docker Compose
 
-Docker Composeは，Dockerイメージのビルドや各コンテナの起動・停止などをより簡単に行えるようにするツールです．
+Docker Composeは，Dockerイメージのビルドや各コンテナの起動・停止などをより簡単に行えるようにするツールです．[docker_compose.yml](docker/docker_compose.yml)には，コンテナ名やイメージ名，そして，ホストとコンテナとのディレクトリやポートの共有方法を記載します．
 
 ```Dockerfile
 version: '2.3'
@@ -93,3 +93,23 @@ services:
         stack: 67108864
     tty: true
 ```
+
+`docker_compose.yml`が保存されたディレクトリで，次の`docker-compose`コマンドを入力するとコンテナが立ちあがります．
+
+```
+$ docker-compose up
+```
+
+一度立ちあがると，その端末は占有されるので，`shift+ctrl+t`で新規タブを開き，`exec`オプションを付けた`docker`コマンドを入力するとコンテナに入ることができます．
+
+```
+$ docker exec -it [container_name] bash
+```
+
+`rm`オプションを付けて`docker-compose`コマンドを入力するとコンテナが削除されます．
+
+```
+$ docker-compose rm
+```
+
+
