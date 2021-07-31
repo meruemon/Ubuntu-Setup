@@ -1,4 +1,4 @@
-# Ubuntu-Setup
+# Ubuntu install
 
 [Ubuntu 20.04.1 LTS 日本語Remix](https://www.ubuntulinux.jp/products/JA-Localized/download)のセットアップ方法を以下に記載する.
 OSはインストール時点で最新のLTS (Long Term Support：長期サポート)版を使用する.
