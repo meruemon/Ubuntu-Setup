@@ -416,6 +416,39 @@ Community版`pycharm-community`も同様の方法でインストールできる�
 $ sudo snap install pycharm-community --classic
 ```
 
+### Vim
+
+`vi`の改良版．エディタのデファクトスタンダードの一つ．
+
+```
+$ sudo apt install vim
+```
+
+### LibreOffice
+
+Word，Excelなどに代わるオープンソースオフィス．
+
+```
+& sudo -E add-apt-repository -n ppa:libreoffice/ppa
+& sudo apt-get update 
+& sudo apt install libreoffice
+```
+
+日本語化
+
+```
+$ sudo apt install libreoffice-l10n-ja libreoffice-help-ja 
+```
+
+### Google Chrome
+
+```
+$ sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+$ sudo wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+$ sudo apt update
+$ sudo apt install google-chrome-stable
+```
+
 ## ■ ユーザの追加
 
 以上までの作業は，OSインストール時に作成したユーザで行ってきたが，実験などは，個別のユーザで行う．
