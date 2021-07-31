@@ -45,8 +45,23 @@ $ docker exec -it [container_name] bash
 Dockerfileは，Dockerイメージを作成するための設計図です．
 
 ```Dockerfile
-FROM 
+FROM OS(Docker imageから選ぶ)
+
+RUN Linuxコマンド
+
+ENV 環境変数
 ```
+
+OSをセットアップするイメージですので，[ここで](ubuntu_install.md)で説明したことを記述します．
+[サンプル](docker/Dockerfile)には，基礎となるイメージを拡張する例を示してます．環境変数`USER`と`USER_ID`はそれぞれの環境に合わせて変更します．
+`id`コマンドを入力すると自分のユーザ名とIDを確認できます．
+
+```
+$ id
+uid=1001(student) gid=1001(student) ...
+```
+
+
 
 ## Docker Compose
 
