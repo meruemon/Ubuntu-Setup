@@ -1,1 +1,47 @@
 # Dockerの使い方
+
+Dockerとはアプリケーションを開発・移動・実行するためのプラットフォームです．1台のパソコンの上に，複数の仮想環境を作成することができます． 他の仮想化技術と比較し，仮想マシンを建てる必要がないので軽量である特徴を持ちます． Dockerで作成された仮想環境を『コンテナ』と呼び，コンテナを作成する際に必要となるファイルが『イメージ』です．イメージは読み込み専用であり，OSやソフトウェアの設定をひとまとめに保存しています．コンテナはイメージから作られ，実行されます．
+
+## よく使うコマンド
+
+|  コマンド  |  内容  |
+| ---- | ---- |
+|  docker images  |  イメージ一覧を表示  |
+|  docker ps |  起動中のコンテナ一覧を表示 |
+|  docker ps -a |  停止中のコンテナを含めた一覧を表示 |
+|  docker rmi [image name/image id] |  イメージの削除 |
+|  docker rm [container name/container id] |  イメージの削除 |
+
+### イメージをダウンロード
+
+Dockerのレジストリ（NGC）などからイメージをダウンロードしてくる．
+
+```
+$ docker pull [image_name]:[tag]
+```
+
+### イメージをビルド
+
+任意のイメージ名を指定可能．タグはバージョンを指定することが多く，未指定の場合は自動的に`latest`となる．
+
+```
+$ docker build -t [image_name]:[tag] [path_to_Dockerfile]
+```
+
+### イメージからコンテナを作成
+
+```
+$ docker run -it --name [container_name] [image_name]:[tag] bash
+```
+
+## Dockerfileの書き方
+
+Dockerfileは，Dockerイメージを作成するための設計図です．
+
+```Dockerfile
+FROM 
+```
+
+## Docker Compose
+
+Docker Composeは，Dockerイメージのビルドや各コンテナの起動・停止などをより簡単に行えるようにするツールです．
