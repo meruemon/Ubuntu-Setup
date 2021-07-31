@@ -1,0 +1,20 @@
+version: '2.3'
+services:
+  dev:
+    container_name: test_env
+    image: test_env
+    runtime: nvidia
+    command: /bin/bash 
+    working_dir: /home/student/Programs
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - /home/student/Programs:/home/student/Programs
+    environment:
+        - DISPLAY=$DISPLAY
+        - TERM=xterm-256color
+    ports:
+        - "8888:8888"
+    ulimits:
+        memlock: -1
+        stack: 67108864
+    tty: true
