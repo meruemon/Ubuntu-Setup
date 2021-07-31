@@ -46,7 +46,7 @@ RUN useradd -g ${USER_ID} -u ${USER_ID} -m -s /bin/bash ${USER}
 RUN gpasswd -a ${USER} sudo
 RUN echo "${USER}:${USER}" | chpasswd
 
-USER yoshida
+USER ${USER}
 WORKDIR /home/${USER}/
 
 
