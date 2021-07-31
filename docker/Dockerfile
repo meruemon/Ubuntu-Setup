@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # RUN conda install [library_name]
 
 ##
-# Set User
+# User Settings
 ##
 ENV USER student
 ENV USER_ID 1001
@@ -41,9 +41,9 @@ ENV HOME /home/${USER}
 ENV SHELL /bin/bash
 
 RUN groupadd -g ${USER_ID} ${USER}
-RUN useradd -g ${USER_ID} -u ${USER_ID} -m -s /bin/bash ${USER}
+RUN useradd -g ${USER_ID} -u ${USER_ID} -m -s ${SHELL} ${USER}
 RUN gpasswd -a ${USER} sudo
 RUN echo "${USER}:${USER}" | chpasswd
 
 USER ${USER}
-WORKDIR /home/${USER}/
+WORKDIR ${HOME}
