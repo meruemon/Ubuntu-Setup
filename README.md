@@ -6,7 +6,8 @@ OSはインストール時点で最新のLTS (Long Term Support：長期サポ�
 実験環境は，[Docker](https://ja.wikipedia.org/wiki/Docker)を前提としているため，インストールするパッケージは必要最低限としている.
 OSインストール時にも，『最小インストール』を選択し，適宜パッケージをインストールする.
 
-以降，記載順に設定を行い，管理者権限が必要な操作には，コマンドの先頭に`sudo`を付ける点に注意する．また，`vi`コマンドを使用してターミナルからファイル編集を行う.
+以降，『端末』を開いて，記載順に設定を行い，管理者権限が必要な操作には，コマンドの先頭に`sudo`を付ける点に注意する．また，`vi`コマンドを使用して端末からファイル編集を行う.なお，端末はショートカットキー`Ctrl+Alt+t`を入力して開くことができる．
+
 基本的な[操作方法](https://eng-entrance.com/linux-command-vi)を事前に確認する．
 
 必要最低限のviの操作方法
@@ -37,10 +38,10 @@ export http_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
 export ftp_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
 ```
 
-`wget`コマンドで動作確認を行う.
+`wget`コマンドで動作確認を行う.`index.html`にトップページのhtmlが保存される（スクレイピング）．
 
 ```
-$ wget https://yahoo.co.jp | more
+$ wget https://www.yahoo.co.jp | more
 ```
 
 ウェブブラウザからインターネット接続するためには，設定->ネットワーク->ネットワークプロキシ->手動を順に開き，`HTTPプロキシ`，`HTTPSプロキシ`，`FTPプロキシ`にURL`proxy.itc.kansai-u.ac.jp`とポート番号`8080`をそれぞれ入力する．
@@ -94,25 +95,49 @@ $ sudo systemctl restart snapd
 
 ```
 $ LANG=C xdg-user-dirs-gtk-update
+Moving DESKTOP directory from デスクトップ to Desktop
+Moving DOWNLOAD directory from ダウンロード to Downloads
+Moving TEMPLATES directory from テンプレート to Templates
+Moving PUBLICSHARE directory from 公開 to Public
+Moving DOCUMENTS directory from ドキュメント to Documents
+Moving MUSIC directory from ミュージック to Music
+Moving PICTURES directory from ピクチャ to Pictures
+Moving VIDEOS directory from ビデオ to Videos
 ```
+
+`Don't ask me this again`にチェックを入れ，`Update Names`をクリックする．
 
 ### (Optional) 時刻設定
 
 大学のNTPサーバを利用して，正確な時刻を取得する．
 
 ```
-$ sudo vim /etc/systemd/timesyncd.conf
+$ sudo vi /etc/systemd/timesyncd.conf
 
 NTP=ntp.kansai-u.ac.jp
 
 $ sudo systemctl restart systemd-timesyncd.service
 $ sudo systemctl -l status systemd-timesyncd
+ systemd-timesyncd.service - Network Time Synchronization
+     Loaded: loaded (/lib/systemd/system/systemd-timesyncd.service; enabled; vendor preset: enabled)
+     Active: active (running) since Sat 2021-07-31 12:33:14 JST; 6s ago
+       Docs: man:systemd-timesyncd.service(8)
+   Main PID: 4441 (systemd-timesyn)
+     Status: "Initial synchronization to time server 158.217.208.10:123 (ntp.kansai-u.ac.jp)."
+      Tasks: 2 (limit: 38237)
+     Memory: 1.3M
+     CGroup: /system.slice/systemd-timesyncd.service
+             └─4441 /lib/systemd/systemd-timesyncd
 ```
+
+`Active: active (running)`となっていることを確認する．
 
 ## ■ システム更新
 
 ```
 $ sudo apt update && sudo apt upgrade
+...
+続行しますか? [Y/n] y <- yを入力してエンター
 ```
 
 [apt-getコマンド](https://webkaru.net/linux/apt-get-command/)は，Debian系のディストリビューション（DebianやUbuntu）のパッケージ管理システムであるAPT（Advanced Package Tool）ライブラリを利用してパッケージを操作・管理するコマンドです.
