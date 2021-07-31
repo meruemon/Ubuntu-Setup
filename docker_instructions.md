@@ -22,7 +22,7 @@ $ docker pull [image_name]:[tag]
 
 ### イメージをビルド
 
-任意のイメージ名を指定可能．タグはバージョンを指定することが多く，未指定の場合は自動的に`latest`となる．
+`[image_name]`には，任意のイメージ名を指定可能．`[tag]`はバージョンを指定することが多く，未指定の場合は自動的に`latest`となる．
 
 ```
 $ docker build -t [image_name]:[tag] [path_to_Dockerfile]
@@ -32,6 +32,12 @@ $ docker build -t [image_name]:[tag] [path_to_Dockerfile]
 
 ```
 $ docker run -it --name [container_name] [image_name]:[tag] bash
+```
+
+### 起動中のコンテナに入る
+
+```
+$ docker exec -it [container_name] bash
 ```
 
 ## Dockerfileの書き方
