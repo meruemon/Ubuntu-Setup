@@ -149,7 +149,7 @@ $ sudo apt update && sudo apt upgrade
 | `apt-get install [package]` |  パッケージのインストール/更新  |
 | `apt-get update`  | パッケージリストの更新  |
 | `apt-get upgrade` | インストールされてるパッケージの更新 |
-| `apt-get dist-upgrade` | インストールされてるカーネルの更新 |
+| `apt-get dist-upgrade` | インストールされてるカーネルの更新（*原則，このコマンドは使用しない*） |
 
 `update`はパッケージリストが更新されるだけであり，最新のリストを参照して`upgrade`を用いてパッケージの更新を行う.
 
