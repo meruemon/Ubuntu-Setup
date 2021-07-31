@@ -137,7 +137,7 @@ $ sudo systemctl -l status systemd-timesyncd
 ```
 $ sudo apt update && sudo apt upgrade
 ...
-続行しますか? [Y/n] y <- yを入力してエンター
+続行しますか? [Y/n] y <- yを入力してエンターを押す
 ```
 
 [apt-getコマンド](https://webkaru.net/linux/apt-get-command/)は，Debian系のディストリビューション（DebianやUbuntu）のパッケージ管理システムであるAPT（Advanced Package Tool）ライブラリを利用してパッケージを操作・管理するコマンドです.
@@ -157,8 +157,12 @@ $ sudo apt update && sudo apt upgrade
 
 ### PPA の追加
 
+プロキシの環境変数を引き継ぐため，`-E`オプションを付けて，`add-apt-repository`コマンドを実行する．
+
 ```
-$ sudo add-apt-repository ppa:graphics-drivers/ppa
+$ sudo -E add-apt-repository ppa:graphics-drivers/ppa
+...
+[ENTER] を押すと続行します。Ctrl-c で追加をキャンセルできます。 <- エンター押す
 $ sudo apt update
 ```
 
@@ -166,6 +170,18 @@ $ sudo apt update
 
 ```
 $ ubuntu-drivers devices
+WARNING:root:_pkg_get_support nvidia-driver-390: package has invalid Support Legacyheader, cannot determine support level
+== /sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0 ==
+modalias : pci:v000010DEd00001CB2sv000010DEsd000011BDbc03sc00i00
+vendor   : NVIDIA Corporation
+model    : GP107GL [Quadro P600] <- 計算機のGPU名が表示
+driver   : nvidia-driver-450-server - distro non-free
+driver   : nvidia-driver-390 - distro non-free
+driver   : nvidia-driver-460-server - distro non-free
+driver   : nvidia-driver-470 - distro non-free recommended <- 推薦
+driver   : nvidia-driver-418-server - distro non-free
+driver   : nvidia-driver-460 - distro non-free
+driver   : xserver-xorg-video-nouveau - distro free builtin
 ```
 
 ### ドライバのインストール
@@ -173,10 +189,12 @@ $ ubuntu-drivers devices
 上記操作で`recommended`と表示されたバージョンのドライバをインストールする.
 
 ```
-$ sudo apt install nvidia-driver-440
+$ sudo apt install nvidia-driver-470
+...
+続行しますか? [Y/n] y <- yを入力してエンターを押す
 ```
 
-※`autoinstall`を使用しても良いが，インストールしたバージョンを意識するために指定する.
+ここでは，`autoinstall`を使用しても良いが，インストールしたバージョンを意識するために指定する.
 
 `nvidia-smi`コマンドを実行してGPUの情報が表示されれば完了.
 
