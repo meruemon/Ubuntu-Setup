@@ -24,14 +24,13 @@ RUN apt-get update \
 RUN apt-get -y clean all
 RUN rm -rf /var/lib/apt/lists/*
 
+# Install softwares
 RUN apt-get update && apt-get install -y --no-install-recommends \
     imagemagick && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Python libraries
 # RUN conda install [packages]
-
-ENV WORKSPACE_PATH /workspace
-WORKDIR $WORKSPACE_PATH
 
 ##
 # Set User
@@ -48,8 +47,3 @@ RUN echo "${USER}:${USER}" | chpasswd
 
 USER ${USER}
 WORKDIR /home/${USER}/
-
-
-
-
-
