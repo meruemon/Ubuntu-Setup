@@ -1,8 +1,8 @@
 version: '2.3'
 services:
   dev:
-    container_name: test_env
-    image: test_env
+    container_name: [container_name]
+    image: [image_name]:[tag]
     runtime: nvidia
     command: /bin/bash 
     working_dir: /home/student/Programs
