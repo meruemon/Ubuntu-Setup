@@ -43,6 +43,8 @@ export ftp_proxy="http://proxy.kansai-u.ac.jp:8080/"
 $ wget https://yahoo.co.jp | more
 ```
 
+ウェブブラウザからインターネット接続するためには，設定->ネットワーク->ネットワークプロキシ->手動を順に開き，`HTTPプロキシ`，`HTTPSプロキシ`，`FTPプロキシ`にURL`proxy.kansai-u.ac.jp`とポート番号`8080`をそれぞれ入力する．
+
 ### apt-getの設定
 
 `sudo`を付けて，`vi`コマンドで`/etc/apt/apt.conf.d/30proxy`を開き以下を追記する.
