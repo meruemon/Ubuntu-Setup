@@ -57,7 +57,7 @@ WORKDIR ワークディレクトリを設定
 # Ex. WORKDIR /app
 ```
 
-[サンプル](docker/Dockerfile)には，基礎となるイメージを拡張する例を示してます．
+[サンプル](docker/Dockerfile)には，NGCからpullしてきた基礎となるイメージを拡張する例を示してます．
 OSをセットアップするイメージですので，[ここで](ubuntu_install.md)で説明したことを記述します．
 環境変数`USER`と`USER_ID`はそれぞれの環境に合わせて変更します．
 `id`コマンドを入力すると自分のユーザ名とIDを確認できます．
