@@ -449,6 +449,14 @@ $ sudo apt update
 $ sudo apt install google-chrome-stable
 ```
 
+### VLC
+
+動画再生
+
+```
+$ sudo apt install vlc 
+```
+
 ## ■ ユーザの追加
 
 以上までの作業は，OSインストール時に作成したユーザで行ってきたが，実験などは，個別のユーザで行う．
