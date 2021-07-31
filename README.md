@@ -32,9 +32,9 @@ OSインストール時にも，『最小インストール』を選択し，適
 
 ```
 $ vi ~/.bashrc
-export https_proxy="http://proxy.kansai-u.ac.jp:8080/"
-export http_proxy="http://proxy.kansai-u.ac.jp:8080/"
-export ftp_proxy="http://proxy.kansai-u.ac.jp:8080/"
+export https_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
+export http_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
+export ftp_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
 ```
 
 `wget`コマンドで動作確認を行う.
@@ -43,7 +43,7 @@ export ftp_proxy="http://proxy.kansai-u.ac.jp:8080/"
 $ wget https://yahoo.co.jp | more
 ```
 
-ウェブブラウザからインターネット接続するためには，設定->ネットワーク->ネットワークプロキシ->手動を順に開き，`HTTPプロキシ`，`HTTPSプロキシ`，`FTPプロキシ`にURL`proxy.kansai-u.ac.jp`とポート番号`8080`をそれぞれ入力する．
+ウェブブラウザからインターネット接続するためには，設定->ネットワーク->ネットワークプロキシ->手動を順に開き，`HTTPプロキシ`，`HTTPSプロキシ`，`FTPプロキシ`にURL`proxy.itc.kansai-u.ac.jp`とポート番号`8080`をそれぞれ入力する．
 
 ### apt-getの設定
 
@@ -51,8 +51,8 @@ $ wget https://yahoo.co.jp | more
 
 ```
 $ sudo vi /etc/apt/apt.conf.d/30proxy
-Acquire::http { Proxy "http://proxy.kansai-u.ac.jp:8080/"; };
-Acquire::https { Proxy "http://proxy.kansai-u.ac.jp:8080/"; };
+Acquire::http { Proxy "http://proxy.itc.kansai-u.ac.jp:8080/"; };
+Acquire::https { Proxy "http://proxy.itc.kansai-u.ac.jp:8080/"; };
 ```
 
 `apt-get`コマンドで動作確認を行う.
