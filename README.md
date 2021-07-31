@@ -1,3 +1,3 @@
 # Ubuntu-Setup
 
-* [ubuntu install][ubuntu_install.md]
+- [ubuntu install](ubuntu_install.md)
