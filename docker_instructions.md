@@ -354,3 +354,11 @@ $ docker ps -a
 CONTAINER ID   IMAGE         COMMAND    CREATED        STATUS                    PORTS     NAMES
 793789db6d50   hello-world   "/hello"   26 hours ago   Exited (0) 26 hours ago             quirky_blackburn
 ```
+
+不要なコンテナは`docker rm`コマンドでも直接削除可能．
+
+```
+$ docker rm 793789db6d50
+$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+```
