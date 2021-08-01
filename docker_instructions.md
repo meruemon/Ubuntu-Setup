@@ -312,3 +312,45 @@ student@11720b59b742:~/Programs$ jupyter notebook
      or http://127.0.0.1:8888/?token=b8852485bf3dede2cf94c57bd8d5bcadf915fb999926b5bd
 ```
 
+`jupyter notebook`を終了する場合は，`Ctrl+c`を入力する．
+
+コンテナを抜ける場合は，`Ctrl+d`を入力する．ただし，コンテナは起動したまま（`STATUS`が`Up`）のままである．
+
+```
+student@11720b59b742:~/Programs$ exit <-- Ctrl+dを入力
+student@IMGPROC-180129:~$ docker ps -a
+CONTAINER ID   IMAGE               COMMAND                  CREATED          STATUS                    PORTS                                                 NAMES
+11720b59b742   example:19.21-py3   "/usr/local/bin/nvid…"   20 minutes ago   Up 12 minutes             6006/tcp, 0.0.0.0:8888->8888/tcp, :::8888->8888/tcp   example_env
+793789db6d50   hello-world         "/hello"                 26 hours ago     Exited (0) 26 hours ago                                                         quirky_blackburn
+student@IMGPROC-180129:~$ 
+```
+
+コンテナを停止する場合は，`docker-compose up`したタブ開き，`Ctrc+c`を入力する．
+
+```
+...
+example_env |
+Gracefully stopping... (press Ctrl+C again to force)
+Stopping example_env ... done
+```
+
+コンテナの状態は`Exited`に変化する．
+
+```
+$ docker ps -a
+CONTAINER ID   IMAGE               COMMAND                  CREATED          STATUS                      PORTS     NAMES
+11720b59b742   example:19.21-py3   "/usr/local/bin/nvid…"   22 minutes ago   Exited (0) 59 seconds ago             example_env
+793789db6d50   hello-world         "/hello"                 26 hours ago     Exited (0) 26 hours ago               quirky_blackburn
+```
+
+もう一度コンテナを起動する場合は，`docker-compose up`コマンドを入力する．また，コンテナを削除する場合は，`docker-compose rm`コマンドを入力する．
+
+```
+$ docker-compose rm
+Going to remove example_env
+Are you sure? [yN] y <-- yを入力
+Removing example_env ... done
+$ docker ps -a
+CONTAINER ID   IMAGE         COMMAND    CREATED        STATUS                    PORTS     NAMES
+793789db6d50   hello-world   "/hello"   26 hours ago   Exited (0) 26 hours ago             quirky_blackburn
+```
