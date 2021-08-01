@@ -473,7 +473,7 @@ $ sudo apt install vim
 
 ### VScode
 
-MS製GUIの高機能テキストエディタ．Visual Studioではない．
+MS製の高機能GUIテキストエディタ．Visual Studioではない．
 [ここから](https://code.visualstudio.com/download)`.deb`をダウンロードする．ファイルは`Downloads`に保存されるため，
 端末でディレクトリを移動して，インストールを行う．
 
