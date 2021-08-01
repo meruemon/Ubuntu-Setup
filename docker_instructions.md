@@ -112,4 +112,26 @@ $ docker exec -it [container_name] bash
 $ docker-compose rm
 ```
 
+## 動作確認
 
+[NGC](https://ngc.nvidia.com/signin)にログインし，`右上名前->Setup->Get API Key->Generate API Key->Confirm`を順にクリックする．
+
+次に，『Usage』に表示されたコマンドを端末に入力する．
+
+```
+$ docker login nvcr.io
+Username: $oauthtoken <-- 『$oauthtoken』をそのまま入力
+Password:  <-- 英数字文字列をコピーしてペースト（何も表示されない）
+WARNING! Your password will be stored unencrypted in /home/student/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+```
+
+続いて，『Catalog』から実験に必要なDockerイメージをダウンロードする．NGCには，常に最新のイメージが公開されている．CUDAやPytorch・Tensorflowのバージョンなどを[Release Note](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/overview.html#overview)から確認して，今実行したいソースコードに合うイメージを探す．ここでは，
+[19.12-py3](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel_19-12.html#rel_19-12)をダウンロードする例を示す．
+
+```
+$ docker pull nvcr.io/nvidia/pytorch:19.12-py3
+```
