@@ -56,7 +56,7 @@ $ vi ~/.curlrc
 proxy=http://proxy.itc.kansai-u.ac.jp:8080/
 ```
 
-`sudo`コマンド実行時，個別ユーザごとの設定を引き継ぐ設定を行う．`visudo`コマンドは入力すると，`nano`エディタが立ち上がる．Ctrl+
+`sudo`コマンド実行時，個別ユーザごとの設定を引き継ぐ設定を行う．`visudo`コマンドは入力すると，`nano`エディタが立ち上がる．
 `Ctrl+o`で保存，`Ctrl+x`で閉じる．
 
 ```
@@ -447,9 +447,9 @@ docker-compose version 1.29.2, build 5becea4c
 
 ### Pycharm
 
-Python用の統合環境（IDE）．二つのバージョンCommunity（無料）とProffessional（有料）がある．学生は，Academicライセンスを用いるとJetBrain製品を全て無料で利用できるため，[ここから](https://www.jetbrains.com/ja-jp/community/education/#students)申請することをお勧めする．申請の際は，大学のメールアドレス`***@kansai-u.ac.jp`を使用する．
+Python用の統合環境（IDE）．二つのバージョンCommunity（無料）とProfessional（有料）がある．学生は，Academicライセンスを用いるとJetBrain製品を全て無料で利用できるため，[ここから](https://www.jetbrains.com/ja-jp/community/education/#students)申請することをお勧めする．申請の際は，大学のメールアドレス`***@kansai-u.ac.jp`を使用する．Professional版はリモートアクセスに関わる機能が追加されているため，サーバを利用する機会が多い場合はこちらが便利である．
 
-`sudo`を付け，`snap`コマンドでProffesional版`pycharm-professional`をインストールする．
+`sudo`を付け，`snap`コマンドでProfessional版`pycharm-professional`をインストールする．
 
 ```
 $ sudo snap install pycharm-professional --classic
@@ -471,7 +471,7 @@ $ sudo apt install vim
 
 ### VScode
 
-GUIのテキストエディタ．
+MS製GUIの高機能テキストエディタ．Visual Studioではない．
 [ここから](https://code.visualstudio.com/download)`.deb`をダウンロードする．ファイルは`Downloads`に保存されるため，
 端末でディレクトリを移動して，インストールを行う．
 
