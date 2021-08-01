@@ -131,7 +131,35 @@ Login Succeeded
 
 続いて，『Catalog』から実験に必要なDockerイメージをダウンロードする．NGCには，常に最新のイメージが公開されている．CUDAやPytorch・Tensorflowのバージョンなどを[Release Note](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/overview.html#overview)から確認して，今実行したいソースコードに合うイメージを探す．ここでは，
 [19.12-py3](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel_19-12.html#rel_19-12)をダウンロードする例を示す．
+イメージのサイズは10GB弱であるため，ある程度時間がかかる．
 
 ```
 $ docker pull nvcr.io/nvidia/pytorch:19.12-py3
+19.12-py3: Pulling from nvidia/pytorch
+...
+883443701e4c: Pull complete 
+Digest: sha256:2eda2bfdfe698a63baf1cab64003f5dcef72f79cbeba80709a53e1159ddeeaf7
+Status: Downloaded newer image for nvcr.io/nvidia/pytorch:19.12-py3
+nvcr.io/nvidia/pytorch:19.12-py3
 ```
+
+ダウンロードされたイメージ一覧の表示．
+
+```
+$ docker images
+REPOSITORY               TAG         IMAGE ID       CREATED         SIZE
+hello-world              latest      d1165f221234   4 months ago    13.3kB
+nvidia/cuda              11.0-base   2ec708416bb8   11 months ago   122MB
+nvcr.io/nvidia/pytorch   19.12-py3   be021446e08c   20 months ago   9.28GB <-- ダウンロードされた
+```
+
+まずは，ホームディレクトリに，ディレクトリ`docker/example`を作成し，その中に`Dockerfile`を作成する．
+[サンプル](docker/Dockerfile)をコピーし，テキストエディアで開いた`Dockerfile`に貼り付ける．
+
+```
+$ cd ~
+$ mkdir -p docker/example
+$ cd docker/example
+$ touch Dockerfile
+```
+
