@@ -1,4 +1,4 @@
-# Ubuntuの初期設定法
+# Ubuntuの初期設定方法
 
 [Ubuntu 20.04.1 LTS 日本語Remix](https://www.ubuntulinux.jp/products/JA-Localized/download)のセットアップ方法を以下に記載する.
 OSはインストール時点で最新のLTS (Long Term Support：長期サポート)版を使用する.
@@ -8,16 +8,24 @@ OSインストール時にも，『最小インストール』を選択し，適
 
 以降，『端末』を開いて，記載順に設定を行う．`$`マークに続く入力がコマンド部分を表す．管理者権限が必要な操作には，コマンドの先頭に`sudo`を付ける点に注意する．また，`vi`コマンドを使用して端末からファイル編集を行う.なお，端末はショートカットキー`Ctrl+Alt+t`を入力して開くことができる．
 
-必要最低限の`vi`コマンドの[操作方法](https://eng-entrance.com/linux-command-vi)を事前に確認する．
+必要最低限の`vi`コマンドの[操作方法](https://eng-entrance.com/linux-command-vi)を以下に示す．
 
 | コマンド|  内容  |
 | ---- | ---- |
-| `i, a, o` |  入力（インサート）モードに切り替え |
+| `i, a, o` |  入力（インサート）モードに切り替え（順に、カーソルの左側，カーソルの右側，次の行から文字入力） |
 | `Esc`  | コマンドモードに切り替え  |
 | `h, l, j, k` | コマンドモード中に左右下上にカーソル移動（矢印キーも使用可） |
+| `x` | コマンドモード時に１文字を削除 |
+| `dd` | コマンドモード時に1行を削除 |
 | `Esc`+`:w` | 保存 |
 | `Esc`+`:q` | 閉じる |
 | `Esc`+`:wq` | 保存して閉じる |
+| `G` | 最終行へカーソルを移動 |
+| `1+G` | 先頭行へカーソルを移動 |
+| `v` | ビジュアルモードへ切り替え |
+| `y` | ビジュアルモードで選択した範囲をコピー |
+| `p` | コピーした文字列をペースト |
+| `u` | 一つ前に戻る |
 
 あわせて，端末で[よく使うLinuxコマンド](https://www.google.com/search?q=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&sxsrf=ALeKk01adUXnJjdo8eDpMdjWbD_nk4tVbQ%3A1627643043700&ei=o9wDYeuhKqeQr7wPsvWq4A0&oq=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&gs_lcp=Cgdnd3Mtd2l6EAMyCwgAEIAEEAQQJRAgSgQIQRgAUNMgWNMgYJsiaABwAngAgAGnAogBggOSAQUxLjAuMZgBAKABAqABAcABAQ&sclient=gws-wiz&ved=0ahUKEwir_8Lr0oryAhUnyIsBHbK6CtwQ4dUDCA8&uact=5)を調べる．
 
@@ -43,7 +51,24 @@ export ftp_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
 $ wget https://www.yahoo.co.jp | more
 ```
 
-ウェブブラウザからインターネット接続するためには，設定->ネットワーク->ネットワークプロキシ->手動を順に開き，`HTTPプロキシ`，`HTTPSプロキシ`，`FTPプロキシ`にURL`proxy.itc.kansai-u.ac.jp`とポート番号`8080`をそれぞれ入力する．
+```
+$ vi ~/.curlrc
+proxy=http://proxy.itc.kansai-u.ac.jp:8080/
+```
+
+`sudo`コマンド実行時，個別ユーザごとの設定を引き継ぐ設定を行う．`visudo`コマンドは入力すると，`nano`エディタが立ち上がる．Ctrl+
+`Ctrl+o`で保存，`Ctrl+x`で閉じる．
+
+```
+$ sudo visudo
+#Defaults env_reset
+Defaults env_keep="no_proxy NO_PROXY"
+Defaults env_keep+="http_proxy https_proxy ftp_proxy"
+Defaults env_keep+="HTTP_PROXY HTTPS_PROXY FTP_PROXY"
+```
+
+
+最後に，ウェブブラウザからインターネット接続するためには，設定->ネットワーク->ネットワークプロキシ->手動を順に開き，`HTTPプロキシ`，`HTTPSプロキシ`，`FTPプロキシ`にURL`proxy.itc.kansai-u.ac.jp`とポート番号`8080`をそれぞれ入力する．
 
 ### apt-getの設定
 
@@ -395,6 +420,27 @@ Sat Jul 31 04:00:53 2021
 |        ID   ID                                                   Usage      |
 |=============================================================================|
 +-----------------------------------------------------------------------------+
+```
+
+## ■ Docker Compose
+
+[ここから](https://github.com/docker/compose/releases)最新のバージョンを確認する．以下は，バージョン`1.29.2`の例である．
+
+```
+$ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+```
+
+実行ファイルが`/usr/local/bin/docker-compose`に保存されるため，実行権限を与える．
+
+```
+$ sudo chmod +x /usr/local/bin/docker-compose
+```
+
+動作確認を行う．
+
+```
+$ docker-compose --version
+docker-compose version 1.29.2, build 5becea4c
 ```
 
 ## ■ よく使うソフトウェアのインストール
