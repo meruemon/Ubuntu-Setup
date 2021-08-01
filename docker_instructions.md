@@ -174,7 +174,7 @@ ENV USER student
 ENV USER_ID 1001
 ```
 
-次に，カレントディレクトリにDockerfileがあることを確認してbuildする．ここでは，イメージ名を`example`，タグを`19.12-py3`とした．
+カレントディレクトリにDockerfileがあることを確認してbuildする．ここでは，イメージ名を`example`，タグを`19.12-py3`とした．
 
 ```
 $ ls
@@ -195,4 +195,13 @@ example                  19.21-py3   111dc2e23541   46 seconds ago   9.33GB <-- 
 hello-world              latest      d1165f221234   4 months ago     13.3kB
 nvidia/cuda              11.0-base   2ec708416bb8   11 months ago    122MB
 nvcr.io/nvidia/pytorch   19.12-py3   be021446e08c   20 months ago    9.28GB
+```
+
+次に，コンテナの立ち上げを行う．`Dockerfile`と同じ場所`docker/example`に`docker-compose.yml`を作成し，
+[サンプル](docker/docker-compose.yml)をコピーし，`docker-compose.yml`にペーストする．
+
+```
+$ touch docker-compose.yml
+$ ls
+Dockerfile  docker-compose.yml
 ```
