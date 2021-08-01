@@ -289,7 +289,7 @@ student@11720b59b742:~/Programs$ python main.py
 hello world
 ```
 
-また，Jupyter notebookを起動する場合は，コマンドを入力し，表示されたURL（`http://127.0.0.1:8888/?token=b8852485bf3dede2cf94c57bd8d5bcadf915fb999926b5bd`）のリンクをコピーし，をブラウザにペーストする．
+また，自分の計算機でJupyter notebookを起動する場合は，`jupyter notebook`コマンドを入力し，表示されたURL（`http://127.0.0.1:8888/?token=b8852485bf3dede2cf94c57bd8d5bcadf915fb999926b5bd`）のリンクをコピーし，ブラウザにペーストする．
 
 ```
 student@11720b59b742:~/Programs$ jupyter notebook
