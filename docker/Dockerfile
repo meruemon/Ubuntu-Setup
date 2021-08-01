@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/pytorch:19.10-py3 
+FROM nvcr.io/nvidia/pytorch:19.12-py3 
 
 ENV https_proxy http://proxy.itc.kansai-u.ac.jp:8080
 ENV http_proxy http://proxy.itc.kansai-u.ac.jp:8080
