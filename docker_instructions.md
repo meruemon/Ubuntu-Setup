@@ -180,4 +180,19 @@ ENV USER_ID 1001
 $ ls
 Dockerfile
 $ docker build -t example:19.21-py3 ./
+...
+ ---> 111dc2e23541
+Successfully built 111dc2e23541
+Successfully tagged example:19.21-py3
+```
+
+`Successfully built`まで表示されたら成功．
+
+```
+$ docker images
+REPOSITORY               TAG         IMAGE ID       CREATED          SIZE
+example                  19.21-py3   111dc2e23541   46 seconds ago   9.33GB <-- オリジナルイメージ
+hello-world              latest      d1165f221234   4 months ago     13.3kB
+nvidia/cuda              11.0-base   2ec708416bb8   11 months ago    122MB
+nvcr.io/nvidia/pytorch   19.12-py3   be021446e08c   20 months ago    9.28GB
 ```
