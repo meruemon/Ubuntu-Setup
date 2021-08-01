@@ -179,11 +179,11 @@ ENV USER_ID 1001
 ```
 $ ls
 Dockerfile
-$ docker build -t example:19.21-py3 ./
+$ docker build -t example:19.12-py3 ./
 ...
  ---> 111dc2e23541
 Successfully built 111dc2e23541
-Successfully tagged example:19.21-py3
+Successfully tagged example:19.12-py3
 ```
 
 `Successfully built`まで表示されたら成功．
@@ -191,7 +191,7 @@ Successfully tagged example:19.21-py3
 ```
 $ docker images
 REPOSITORY               TAG         IMAGE ID       CREATED          SIZE
-example                  19.21-py3   111dc2e23541   46 seconds ago   9.33GB <-- オリジナルイメージ
+example                  19.12-py3   111dc2e23541   46 seconds ago   9.33GB <-- オリジナルイメージ
 hello-world              latest      d1165f221234   4 months ago     13.3kB
 nvidia/cuda              11.0-base   2ec708416bb8   11 months ago    122MB
 nvcr.io/nvidia/pytorch   19.12-py3   be021446e08c   20 months ago    9.28GB
@@ -205,3 +205,110 @@ $ touch docker-compose.yml
 $ ls
 Dockerfile  docker-compose.yml
 ```
+
+続いて，コンテナと共有するディレクトリをホームディレクトリに作成する．ここでは，`Programs`を共有ディレクトリに設定する．
+
+```
+$ cd ~
+$ mkdir Programs
+```
+
+よって，`docker-compose.yml`は以下のように書き換える．
+
+```
+services:
+  dev:
+    container_name: example_env <-- 任意の名前
+    image: example:19.12-py3 <-- buildしたイメージ名：タグ名を指定
+    runtime: nvidia
+    command: /bin/bash 
+    working_dir: /home/student/Programs <-- 作業ディレクトリをProgramsに指定
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - /home/student/Programs:/home/student/Programs <-- ホストとコンテナの共有ディレクトリを指定
+```
+
+`docker-compose.yml`があるディレクトリで`docker-compose`コマンドを使用して，イメージからコンテナを作成する．
+
+```
+$ docker-compose up
+Creating example_env ... done
+Attaching to example_env
+example_env | 
+example_env | =============
+example_env | == PyTorch ==
+example_env | =============
+example_env | 
+example_env | NVIDIA Release 19.12 (build 9142930)
+example_env | PyTorch Version 1.4.0a0+a5b4d78
+example_env | 
+example_env | Container image Copyright (c) 2019, NVIDIA CORPORATION.  All rights reserved.
+example_env | 
+example_env | Copyright (c) 2014-2019 Facebook Inc.
+example_env | Copyright (c) 2011-2014 Idiap Research Institute (Ronan Collobert)
+example_env | Copyright (c) 2012-2014 Deepmind Technologies    (Koray Kavukcuoglu)
+example_env | Copyright (c) 2011-2012 NEC Laboratories America (Koray Kavukcuoglu)
+example_env | Copyright (c) 2011-2013 NYU                      (Clement Farabet)
+example_env | Copyright (c) 2006-2010 NEC Laboratories America (Ronan Collobert, Leon Bottou, Iain Melvin, Jason Weston)
+example_env | Copyright (c) 2006      Idiap Research Institute (Samy Bengio)
+example_env | Copyright (c) 2001-2004 Idiap Research Institute (Ronan Collobert, Samy Bengio, Johnny Mariethoz)
+example_env | Copyright (c) 2015      Google Inc.
+example_env | Copyright (c) 2015      Yangqing Jia
+example_env | Copyright (c) 2013-2016 The Caffe contributors
+example_env | All rights reserved.
+example_env | 
+example_env | Various files include modifications (c) NVIDIA CORPORATION.  All rights reserved.
+example_env | NVIDIA modifications are covered by the license terms that apply to the underlying project or file.
+example_env | 
+example_env | NOTE: MOFED driver for multi-node communication was not detected.
+example_env |       Multi-node communication performance may be reduced.
+example_env | 
+example_env | NOTE: The SHMEM allocation limit is set to the default of 64MB.  This may be
+example_env |    insufficient for PyTorch.  NVIDIA recommends the use of the following flags:
+example_env |    nvidia-docker run --ipc=host ...
+example_env | 
+```
+
+ショートカットキー`Ctrl+Shift+t`で端末に新規タブを作成し，`docker`コマンド（`exec`オプション）でコンテナの中に入る．
+
+```
+$ docker exec -it example_env bash
+student@11720b59b742:~/Programs$
+```
+
+ただし，`example_env`は`docker-compose.yml`で設定した`container_name`である．
+コンテナの中に入ると端末の表示が，`student@11720b59b742`のように変化する．
+
+Pythonに実行環境は，コンテナの中に作られている．
+
+```
+student@11720b59b742:~/Programs$ touch main.py
+student@11720b59b742:~/Programs$ vi main.py
+print('hello world')
+student@11720b59b742:~/Programs$ python main.py
+hello world
+```
+
+また，Jupyter notebookを起動する場合は，コマンドを入力し，表示されたURL（`http://127.0.0.1:8888/?token=b8852485bf3dede2cf94c57bd8d5bcadf915fb999926b5bd`）のリンクをコピーし，をブラウザにペーストする．
+
+```
+student@11720b59b742:~/Programs$ jupyter notebook
+[I 14:39:44.834 NotebookApp] Writing notebook server cookie secret to /home/student/.local/share/jupyter/runtime/notebook_cookie_secret
+[I 14:39:45.433 NotebookApp] jupyter_tensorboard extension loaded.
+[I 14:39:45.460 NotebookApp] JupyterLab extension loaded from /opt/conda/lib/python3.6/site-packages/jupyterlab
+[I 14:39:45.460 NotebookApp] JupyterLab application directory is /opt/conda/share/jupyter/lab
+[I 14:39:45.462 NotebookApp] [Jupytext Server Extension] NotebookApp.contents_manager_class is (a subclass of) jupytext.TextFileContentsManager already - OK
+[I 14:39:45.462 NotebookApp] Serving notebooks from local directory: /home/student/Programs
+[I 14:39:45.462 NotebookApp] The Jupyter Notebook is running at:
+[I 14:39:45.462 NotebookApp] http://hostname:8888/?token=b8852485bf3dede2cf94c57bd8d5bcadf915fb999926b5bd
+[I 14:39:45.462 NotebookApp]  or http://127.0.0.1:8888/?token=b8852485bf3dede2cf94c57bd8d5bcadf915fb999926b5bd
+[I 14:39:45.463 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 14:39:45.466 NotebookApp] 
+    
+    To access the notebook, open this file in a browser:
+        file:///home/student/.local/share/jupyter/runtime/nbserver-95-open.html
+    Or copy and paste one of these URLs:
+        http://hostname:8888/?token=b8852485bf3dede2cf94c57bd8d5bcadf915fb999926b5bd
+     or http://127.0.0.1:8888/?token=b8852485bf3dede2cf94c57bd8d5bcadf915fb999926b5bd
+```
+
