@@ -31,6 +31,8 @@ OSインストール時にも，『最小インストール』を選択する.
 
 あわせて，端末で[よく使うLinuxコマンド](https://www.google.com/search?q=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&sxsrf=ALeKk01adUXnJjdo8eDpMdjWbD_nk4tVbQ%3A1627643043700&ei=o9wDYeuhKqeQr7wPsvWq4A0&oq=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&gs_lcp=Cgdnd3Mtd2l6EAMyCwgAEIAEEAQQJRAgSgQIQRgAUNMgWNMgYJsiaABwAngAgAGnAogBggOSAQUxLjAuMZgBAKABAqABAcABAQ&sclient=gws-wiz&ved=0ahUKEwir_8Lr0oryAhUnyIsBHbK6CtwQ4dUDCA8&uact=5)を調べる．
 
+日本語Remixをインストールすると初期状態から日本語入力機能がインストールされている．半角・全角を押しても切り替わらない場合は，画面右上の『Ja』をクリックして，IMEを『日本語（Mozc）』に設定する．
+
 ## ■ Proxy設定
 
 大学からのインターネット接続は全て，Proxyサーバを経由して管理されている.
