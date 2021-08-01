@@ -64,7 +64,7 @@ OSをセットアップするイメージですので，[ここで](ubuntu_insta
 
 ```
 $ id
-uid=1001(student) gid=1001(student) ...
+uid=1001(student) gid=1001(student) groups=1001(student),998(docker)
 ```
 
 ## Docker Compose
