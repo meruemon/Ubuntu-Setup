@@ -355,7 +355,7 @@ CONTAINER ID   IMAGE         COMMAND    CREATED        STATUS                   
 793789db6d50   hello-world   "/hello"   26 hours ago   Exited (0) 26 hours ago             quirky_blackburn
 ```
 
-不要なコンテナは`docker rm`コマンドでも直接削除可能．
+不要なコンテナは`docker rm`コマンドでも直接削除可能．ただし，`Exited`以外の`STATUS`のコンテナは起動中であるため，停止`docker stop [container_id]`した上で削除しなければならない．
 
 ```
 $ docker rm 793789db6d50
