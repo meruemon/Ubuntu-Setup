@@ -280,7 +280,7 @@ services:
         - /home/student/Programs:/home/student/Programs <-- ホストとコンテナの共有ディレクトリを指定
 ```
 
-`docker-compose.yml`があるディレクトリで`docker-compose`コマンドを使用して，イメージからコンテナを作成する．
+`docker-compose.yml`があるディレクトリで`docker-compose up`コマンドを使用して，イメージからコンテナを作成する．
 
 ```
 $ docker-compose up
@@ -319,6 +319,14 @@ example_env | NOTE: The SHMEM allocation limit is set to the default of 64MB.  T
 example_env |    insufficient for PyTorch.  NVIDIA recommends the use of the following flags:
 example_env |    nvidia-docker run --ipc=host ...
 example_env | 
+```
+
+`-d`オプションをつけるとバックグラウンドで実行されます．
+
+```
+$ docker-compose up -d
+Starting example_env ... done
+$
 ```
 
 ショートカットキー`Ctrl+Shift+t`で端末に新規タブを作成し，`docker`コマンド（`exec`オプション）でコンテナの中に入る．
