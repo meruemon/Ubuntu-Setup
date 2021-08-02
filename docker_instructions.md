@@ -10,11 +10,11 @@ Dockerとはアプリケーションを開発・移動・実行するための�
 |  docker ps |  起動中のコンテナ一覧を表示 |
 |  docker ps -a |  停止中のコンテナを含めた一覧を表示 |
 |  docker rmi [image name/image id] |  イメージの削除 |
-|  docker rm [container name/container id] |  イメージの削除 |
+|  docker rm [container name/container id] |  コンテナの削除 |
 
 ### イメージをダウンロード
 
-Dockerのレジストリ（NGC）などからイメージをダウンロードしてくる．
+Dockerのレジストリ（NGC）などからイメージをダウンロードする．
 
 ```
 $ docker pull [image_name]:[tag]
@@ -26,6 +26,8 @@ $ docker pull [image_name]:[tag]
 
 ```
 $ docker build -t [image_name]:[tag] [path_to_Dockerfile]
+# キャッシュを使わずにビルド
+# $ docker build --no-cache -t [image_name]:[tag] [path_to_Dockerfile]
 ```
 
 ### イメージからコンテナを作成
@@ -33,6 +35,43 @@ $ docker build -t [image_name]:[tag] [path_to_Dockerfile]
 ```
 $ docker run -it --name [container_name] [image_name]:[tag] bash
 ```
+
+|  オプション  |  説明  |　例 |
+| ---- | ---- | ---- |
+| --name | コンテナ名を指定 | docker run --name "test" ubuntu | 
+| -d	| バッググラウンド実行 | docker run -d ubuntu |
+| -it	| 標準入出力モード	| docker run -it --name "test" ubuntu /bin/bash |
+| -p host:cont | ポートフォワーディング | docker run -d -p 8080:80 httpd |
+| -v | ディレクトリの共有 | docker run -v /c/Users/src:/var/www/html httpd |
+| -e | 環境変数を設定 | docker run -it -e foo=bar ubuntu /bin/bash |
+| -w | 作業ディレクトリを指定 | docker run -it -w=/tmp/work ubuntu /bin/bash |
+| --rm | 停止後コンテナ削除 | docker run --rm -it ubuntu /bin/bash |
+
+### コンテナ操作
+
+|  オプション  |  説明  | 例（CID=container_id）|
+| ---- | ---- | ---- |
+| コンテナ一覧 | docker ps [オプション] | docker ps |
+| コンテナ確認 | docker stats コンテナID | docker stats CID |
+| コンテナ起動 | docker start [オプション] コンテナID | docker start CID |
+| コンテナ停止 | docker stop [オプション] コンテナID | docker stop CID |
+| コンテナ再起動 | docker restart [オプション] コンテナID | docker restart CID |
+| コンテナ削除 | docker rm [オプション] コンテナID | docker rm CID |
+| コンテナ中断 | docker pause コンテナID | docker pause CID |
+| コンテナ再開 | docker unpause コンテナID | docker unpause CID |
+
+- コンテナを一括削除
+
+```
+$ docker rm `docker ps -a -q`
+```
+- REPOSITORYがnoneのイメージを削除
+  
+```
+$ docker image prune
+```
+
+ただし，対象のイメージを使用したコンテナが起動中は削除できない．
 
 ### 起動中のコンテナに入る
 
@@ -57,7 +96,19 @@ WORKDIR ワークディレクトリを設定
 # Ex. WORKDIR /app
 ```
 
-[Dockerfile](docker/Dockerfile)には，NGCからpullしてきた基礎となるイメージを拡張する例を示してます．
+
+|  説明  |  コマンド  | 例 |
+| ---- | ---- | ---- |
+| 元となるイメージ | FROM | FROM ubuntu:latest |
+| 作成者 | MAINTAINER | MAINTAINER name |
+| 環境変数 | ENV | ENV KEY=VALUE |
+| 指定のコマンドの実行 | RUN | RUN apt -y install imagemagick |
+| イメージにファイル追加 | ADD | ADD index.html /var/www/html/index.html |
+| ポート番号を指定 | EXPOSE |	EXPOSE 8888 |
+| コンテナ起動時に実行するコマンド | CMD | CMD jupyter notebook |
+| カレントディレクトリを指定 | WORKDIR | WORKDIR /app |
+
+[サンプル](docker/Dockerfile)には，NGCからpullしてきた基礎となるイメージを拡張する例を示してます．
 OSをセットアップするイメージですので，[ここで](ubuntu_install.md)で説明したことを記述します．
 環境変数`USER`と`USER_ID`はそれぞれの環境に合わせて変更します．
 `id`コマンドを入力すると自分のユーザ名とIDを確認できます．
@@ -97,10 +148,10 @@ services:
 `docker_compose.yml`が保存されたディレクトリで，次の`docker-compose`コマンドを入力するとコンテナが立ちあがります．
 
 ```
-$ docker-compose up
+$ docker-compose up -d
 ```
 
-一度立ちあがると，その端末は占有されるので，`shift+ctrl+t`で新規タブを開き，`exec`オプションを付けた`docker`コマンドを入力するとコンテナに入ることができます．
+続いて，`exec`オプションを付けた`docker`コマンドを入力するとコンテナに入ることができます．
 
 ```
 $ docker exec -it [container_name] bash
