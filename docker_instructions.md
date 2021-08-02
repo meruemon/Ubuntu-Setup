@@ -47,9 +47,11 @@ $ docker run -it --name [container_name] [image_name]:[tag] bash
 | -w | 作業ディレクトリを指定 | docker run -it -w=/tmp/work ubuntu /bin/bash |
 | --rm | 停止後コンテナ削除 | docker run --rm -it ubuntu /bin/bash |
 
+ただし，本研究室ではコンテナの作成のほとんどは`docker-compose`を使用する．
+
 ### コンテナ操作
 
-|  オプション  |  説明  | 例（CID=container_id）|
+|  説明  |  コマンド  | 例（CID=container_id）|
 | ---- | ---- | ---- |
 | コンテナ一覧 | docker ps [オプション] | docker ps |
 | コンテナ確認 | docker stats コンテナID | docker stats CID |
@@ -95,7 +97,6 @@ ENV 環境変数を設定
 WORKDIR ワークディレクトリを設定
 # Ex. WORKDIR /app
 ```
-
 
 |  説明  |  コマンド  | 例 |
 | ---- | ---- | ---- |
@@ -145,22 +146,22 @@ services:
     tty: true
 ```
 
-`docker_compose.yml`が保存されたディレクトリで，次の`docker-compose`コマンドを入力するとコンテナが立ちあがります．
+`docker_compose.yml`が保存されたディレクトリで，次の`docker-compose up`コマンドを入力するとコンテナが立ちあがります．
 
 ```
 $ docker-compose up -d
 ```
 
-続いて，`exec`オプションを付けた`docker`コマンドを入力するとコンテナに入ることができます．
+`exec`オプションを付けた`docker`コマンドを入力するとコンテナに入ることができます．
 
 ```
 $ docker exec -it [container_name] bash
 ```
 
-`rm`オプションを付けて`docker-compose`コマンドを入力するとコンテナが削除されます．
+`docker-compose rm`コマンドを入力するとコンテナが削除されます．`rm`の代わりに`start`や`stop`を入力すると，コンテナの再開・停止を行えます．
 
 ```
-$ docker-compose rm
+$ docker-compose rm [stop/start]
 ```
 
 ## 動作確認
