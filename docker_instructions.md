@@ -329,7 +329,7 @@ Starting example_env ... done
 $
 ```
 
-ショートカットキー`Ctrl+Shift+t`で端末に新規タブを作成し，`docker`コマンド（`exec`オプション）でコンテナの中に入る．
+`-d`オプション無しの場合は端末が占有されるため，ショートカットキー`Ctrl+Shift+t`で端末に新規タブを作成し，`docker`コマンド（`exec`オプション）でコンテナの中に入る．
 
 ```
 $ docker exec -it example_env bash
