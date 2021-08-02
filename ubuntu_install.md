@@ -12,7 +12,7 @@ OSインストール時にも，『最小インストール』を選択する.
 `vi`コマンドを使用して端末からファイルを編集する.
 必要最低限の`vi`コマンドの[操作方法](https://eng-entrance.com/linux-command-vi)を以下に示す．
 
-| コマンド|  内容  |
+| コマンド|  説明  |
 | ---- | ---- |
 | `i, a, o` |  入力（インサート）モードに切り替え（順に、カーソルの左側，カーソルの右側，次の行から文字入力） |
 | `Esc`  | コマンドモードに切り替え  |
@@ -30,6 +30,19 @@ OSインストール時にも，『最小インストール』を選択する.
 | `u` | 一つ前に戻る |
 
 あわせて，端末で[よく使うLinuxコマンド](https://www.google.com/search?q=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&sxsrf=ALeKk01adUXnJjdo8eDpMdjWbD_nk4tVbQ%3A1627643043700&ei=o9wDYeuhKqeQr7wPsvWq4A0&oq=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&gs_lcp=Cgdnd3Mtd2l6EAMyCwgAEIAEEAQQJRAgSgQIQRgAUNMgWNMgYJsiaABwAngAgAGnAogBggOSAQUxLjAuMZgBAKABAqABAcABAQ&sclient=gws-wiz&ved=0ahUKEwir_8Lr0oryAhUnyIsBHbK6CtwQ4dUDCA8&uact=5)を調べる．
+
+| コマンド|  説明  | 例 |
+| ---- | ---- | ---- |
+| `cd` | ディレクトリを移動 | `cd ~/Documents` |
+| `ls` | ファイルやディレクトリの情報を表示 | `ls -a` |
+| `pwd` | カレントディレクトリのフルパスを出力 | `pwd` |
+| `cp` | ファイル・ディレクトリのコピー | `cp -r コピー元 コピー先` | 
+| `mv` | ファイル・ディレクトリの移動 | `mv 移動元 移動先` | 
+| `mkdir` | ディレクトリの作成 | `mkdir tmp` | 
+| `touch` | タイムスタンプの変更・ファイルの新規作成 | `touch test.txt` |
+| `sudo` | スーパーユーザの権限でコマンドを実行 | `sudo visudo` |
+| `chmod` | ファイルの権限を変更（r:読込，w:書込，x:実行） | `chmod +x test.py` | 
+| `chown` | ファイルの所有者・グループを変更 | `chown user:user test` | 
 
 日本語Remixをインストールすると初期状態から日本語入力機能がインストールされている．半角・全角を押しても切り替わらない場合は，画面右上の『Ja』をクリックして，IMEを『日本語（Mozc）』に設定する．
 
