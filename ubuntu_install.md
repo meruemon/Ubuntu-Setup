@@ -3,7 +3,7 @@
 [Ubuntu 20.04.1 LTS 日本語Remix](https://www.ubuntulinux.jp/products/JA-Localized/download)のセットアップ方法を以下に記載する.
 OSはインストール時点で最新のLTS (Long Term Support：長期サポート)版を使用する.
 
-実験環境は，[Docker](https://ja.wikipedia.org/wiki/Docker)を前提としているため，ホストにインストールするソフトウェアは必要最低限としている.
+実験環境は，[Docker](https://ja.wikipedia.org/wiki/Docker)を前提としているため，ホストにインストールするソフトウェアは必要最小限としている.
 OSインストール時にも，『最小インストール』を選択する.
 
 以降，『端末』を開いて，記載順に設定を行う．なお，端末はショートカットキー`Ctrl+Alt+t`を入力して開くことができる．
