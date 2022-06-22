@@ -328,11 +328,11 @@ $ echo 'Environment="HTTP_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo t
 $ echo 'Environment="HTTPS_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
 ```
 
-ファイル`dns.conf`を作成し，`echo`コマンドを用いてDNS情報を追加する．`192.168.170.1`は研究室ルータのIPアドレスを指す．
+ファイル`dns.conf`を作成し，`echo`コマンドを用いてDNS情報を追加する．`192.168.100.1`は研究室ルータのIPアドレスを指す．
 
 ```
 $ echo '[Service]' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
-$ echo 'Environment="DOCKER_NETWORK_OPTIONS=--dns 192.168.170.1"' | sudo tee -a /etc/systemd/system/Tdocker.service.d/dns.conf
+$ echo 'Environment="DOCKER_NETWORK_OPTIONS=--dns 192.168.100.1"' | sudo tee -a /etc/systemd/system/Tdocker.service.d/dns.conf
 $ echo 'ExecStart=' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
 $ echo 'ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_NETWORK_OPTIONS' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
 ```
