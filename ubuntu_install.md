@@ -332,7 +332,7 @@ $ echo 'Environment="HTTPS_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo 
 
 ```
 $ echo '[Service]' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
-$ echo 'Environment="DOCKER_NETWORK_OPTIONS=--dns 192.168.100.1"' | sudo tee -a /etc/systemd/system/Tdocker.service.d/dns.conf
+$ echo 'Environment="DOCKER_NETWORK_OPTIONS=--dns 158.217.208.10 --dns 158.217.6.7 --dns 192.168.100.1"' | sudo tee -a /etc/systemd/system/Tdocker.service.d/dns.conf
 $ echo 'ExecStart=' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
 $ echo 'ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_NETWORK_OPTIONS' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
 ```
