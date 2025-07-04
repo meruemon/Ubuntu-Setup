@@ -1,5 +1,7 @@
 # Ubuntuの初期設定方法
 
+**注意** 研究室の計算機はUbuntu 22.04や24.04がインストールされているため，本資料は古い情報が含まれます．なお，同レポジトリのシェルスクリプトは22.04に対応しています．
+
 [Ubuntu 20.04.1 LTS 日本語Remix](https://www.ubuntulinux.jp/products/JA-Localized/download)のセットアップ方法を以下に記載する.
 OSはインストール時点で最新のLTS (Long Term Support：長期サポート)版を使用する.
 
