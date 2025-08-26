@@ -46,6 +46,12 @@ wget -q https://download.teamviewer.com/download/linux/teamviewer_amd64.deb -O /
 sudo apt install -y /tmp/teamviewer.deb
 rm /tmp/teamviewer.deb
 
+# Slackのインストール
+echo ">> Slackをインストール中..."
+wget -q https://downloads.slack-edge.com/releases/linux/4.39.95/prod/x64/slack-desktop-4.39.95-amd64.deb -O /tmp/slack.deb
+sudo apt install -y /tmp/slack.deb
+rm /tmp/slack.deb
+
 # インストール確認
 echo ""
 echo ">> ソフトウェアのバージョン確認:"
