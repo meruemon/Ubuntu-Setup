@@ -74,6 +74,58 @@ Style/           ← スタイルファイル
 | 表 | `tab:` | `\label{tab:results}` |
 | 式 | `eq:` | `\label{eq:loss}` |
 
+### 2.4 ラベルの参照方法（\ref と \eqref）
+
+`\label` で付けたラベルは `\ref` コマンドで参照できます：
+
+```latex
+\ref{ラベル名}
+```
+
+**使用例**:
+
+```latex
+\ref{chap:introduction}章では研究の背景を述べた。
+図\ref{fig:overview}に提案手法の概要を示す。
+表\ref{tab:results}に実験結果をまとめる。
+\ref{sec:method}節で詳細を説明する。
+```
+
+**出力例**:
+- 1章では研究の背景を述べた。
+- 図3.1に提案手法の概要を示す。
+- 表4.2に実験結果をまとめる。
+- 3.2節で詳細を説明する。
+
+#### 数式の参照には `\eqref` を使用
+
+数式を参照する場合は、`\ref` ではなく **`\eqref`** を使用してください。`\eqref` は自動的に括弧を付けてくれます：
+
+```latex
+% 数式の定義
+\begin{equation}
+y_{ui} = \mathbf{e}_u^\top \mathbf{e}_i
+\label{eq:prediction}
+\end{equation}
+
+% 参照（推奨）
+式\eqref{eq:prediction}に示すように、予測スコアは内積で計算される。
+
+% 参照（非推奨）
+式(\ref{eq:prediction})に示すように...  % 手動で括弧を付ける必要がある
+```
+
+**出力の違い**:
+| 記述 | 出力 |
+|------|------|
+| `式\eqref{eq:prediction}` | 式(3.1) ← 自動で括弧付き |
+| `式\ref{eq:prediction}` | 式3.1 ← 括弧なし |
+| `式(\ref{eq:prediction})` | 式(3.1) ← 手動で括弧 |
+
+**まとめ**:
+- 章・節・図・表 → `\ref` を使用
+- 数式 → `\eqref` を使用（括弧が自動で付く）
+
 ---
 
 ## 3. 数式の記述
