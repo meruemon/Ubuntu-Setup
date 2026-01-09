@@ -505,4 +505,4 @@ p(k|\mathbf{x}, \Theta) = \frac{\pi_k \mathcal{N}(\mathbf{x}|\boldsymbol{\mu}_k,
 
 ---
 
-**困ったときは**: 吉田や院生に相談、またはOverleafの公式ドキュメント（https://www.overleaf.com/learn）を参照してください。
+**困ったときは**: 吉田や院生に相談、またはOverleafの[公式ドキュメント](https://www.overleaf.com/learn)を参照してください。
