@@ -559,53 +559,8 @@ sudo systemctl restart ssh
 - 数分待っても進まない場合は、USBメモリの不良やハードウェア問題が考えられる
 - USBメモリを作成し直すか、別のUSBポートを試す
 
-### インストール後に起動しない（GRUBの修復）
-
-> ⚠️ **警告**: 以下のコマンドはブートローダー設定を変更する。操作を誤るとシステムが起動しなくなる可能性がある。実行前に重要なデータのバックアップを取得すること。
-
-```bash
-# インストールUSBから「Try Ubuntu」で起動後、端末を開いて実行
-
-# パーティション一覧を確認（Linuxルートパーティションのデバイス名を確認）
-sudo fdisk -l
-
-# ルートパーティションをマウント（例: /dev/sda2）
-sudo mount /dev/sda2 /mnt
-
-# UEFIの場合、EFIパーティションもマウント（例: /dev/sda1）
-sudo mount /dev/sda1 /mnt/boot/efi
-
-# chroot に必要なファイルシステムをバインドマウント
-sudo mount --bind /dev /mnt/dev
-sudo mount --bind /proc /mnt/proc
-sudo mount --bind /sys /mnt/sys
-
-# chroot で環境に入る
-sudo chroot /mnt
-
-# GRUBを再インストール（/dev/sda はディスク全体を指定）
-grub-install /dev/sda
-update-grub
-
-# chroot 環境から抜ける
-exit
-
-# アンマウント（逆順で）
-sudo umount /mnt/sys
-sudo umount /mnt/proc
-sudo umount /mnt/dev
-sudo umount /mnt/boot/efi
-sudo umount /mnt
-
-# 再起動
-sudo reboot
-```
-
 ### トラブルを防ぐためのポイント
 
-- インストール前に**重要なファイルは必ずバックアップ**する
-- 信頼性の高いUSBメモリ（8GB以上）を使用する
-- ノートPCはACアダプタを接続する
 - インストール・アップデート中に**強制電源オフをしない**
 
 
