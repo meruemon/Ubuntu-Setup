@@ -1,0 +1,44 @@
+# Docker Compose V2 形式 (version フィールド不要)
+# 使用コマンド: docker compose up/down/exec ...
+
+services:
+  pytorch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pytorch1x-gpu-env
+    container_name: pytorch1x-gpu
+
+    # ローカルディレクトリをコンテナの /workspace にマウント
+    volumes:
+      - ./workspace:/workspace   # ソースコード・ノートブック共有領域
+
+    # Jupyter Notebook 用ポート
+    ports:
+      - "8888:8888"
+
+    # コンテナをユーザ yoshida (uid/gid=1001) で実行
+    user: "1001:1001"
+
+    # 標準入力を保持して bash セッションを維持
+    stdin_open: true
+    tty: true
+
+    # 再起動ポリシー (手動停止以外は自動再起動しない)
+    restart: "no"
+
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NVIDIA_VISIBLE_DEVICES=all          # 全GPUを公開
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+    working_dir: /workspace
+
+    # ===== GPU (NVIDIA) サポート =====
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all            # 全GPUを割り当て (特定GPUは device_ids で指定)
+              capabilities: [gpu]
