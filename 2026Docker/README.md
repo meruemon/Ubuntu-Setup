@@ -1,6 +1,5 @@
 # PyTorch 1.x Docker 開発環境 (GPU対応)
 
-> **対象読者**: Docker を初めて使う方・使い始めたばかりの方  
 > このドキュメントは環境構築の手順だけでなく、Docker の基本概念・コマンド・Dockerfile の書き方・Docker Compose の使い方を網羅したリファレンスです。
 
 ---
@@ -474,32 +473,6 @@ docker compose down --rmi local
 docker compose down --rmi local -v
 ```
 
-### 7-4. 複数サービスの例
-
-```yaml
-services:
-
-  # Web アプリ
-  web:
-    build: ./web
-    ports:
-      - "5000:5000"
-    depends_on:
-      - db          # db が起動してから web を起動
-
-  # データベース
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_PASSWORD=secret
-    volumes:
-      - db_data:/var/lib/postgresql/data  # 名前付きボリュームでデータ永続化
-
-# 名前付きボリュームの定義
-volumes:
-  db_data:
-```
-
 ---
 
 ## 8. この環境のセットアップ手順
@@ -515,35 +488,7 @@ volumes:
 | 共有ディレクトリ | `./workspace` ↔ `/workspace` |
 | Jupyter ポート | 8888 |
 
-### 8-2. 前提条件: NVIDIA Container Toolkit のインストール
-
-GPU を Docker から使うには、ホスト側に **NVIDIA ドライバ** と **NVIDIA Container Toolkit** が必要です。
-
-```bash
-# ① NVIDIA ドライバの確認
-nvidia-smi
-# Driver Version と CUDA Version が表示されれば OK
-
-# ② NVIDIA Container Toolkit のインストール
-curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
-    | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-
-curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
-    | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
-    | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-
-sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
-
-# ③ Docker デーモンを再起動
-sudo nvidia-ctk runtime configure --runtime=docker
-sudo systemctl restart docker
-
-# ④ GPU が Docker から見えるか確認
-docker run --rm --gpus all \
-    nvcr.io/nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04 nvidia-smi
-```
-
-### 8-3. 環境構築の手順
+### 8-2. 環境構築の手順
 
 ```bash
 # ① このリポジトリ(フォルダ)に移動
