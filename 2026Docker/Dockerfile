@@ -1,12 +1,16 @@
 # ベースイメージ: CUDA 11.7 + cuDNN 8 + Ubuntu 22.04 (NGC)
 FROM nvcr.io/nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04
 
+# ----- ビルド引数 (各自の環境に合わせて変更してください) -----
+ARG USERNAME=yoshida
+ARG USER_UID=1001
+ARG USER_GID=1001
+
 # タイムゾーン設定 (apt-get 中の対話を防止)
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Tokyo
 
 # ----- システムパッケージ -----
-# Ubuntu 22.04 には Python 3.10 が標準搭載されているため deadsnakes 不要
 RUN apt-get update && apt-get install -y --no-install-recommends \
         python3.10 \
         python3.10-dev \
@@ -27,9 +31,9 @@ RUN update-alternatives --install /usr/bin/python  python  /usr/bin/python3.10 1
     && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1 \
     && update-alternatives --install /usr/bin/pip    pip    /usr/bin/pip3       1
 
-# ----- ユーザ作成 (yoshida / uid=1001) -----
-RUN groupadd -g 1001 yoshida \
-    && useradd -m -u 1001 -g yoshida -s /bin/bash yoshida
+# ----- ユーザ作成 (ARG で指定した名前・UID・GID を使用) -----
+RUN groupadd -g ${USER_GID} ${USERNAME} \
+    && useradd -m -u ${USER_UID} -g ${USERNAME} -s /bin/bash ${USERNAME}
 
 # ----- Python ライブラリのインストール (root で実施) -----
 # PyTorch 1.13.1 (GPU / CUDA 11.7版)
@@ -59,10 +63,10 @@ RUN pip install --no-cache-dir \
         jupyterlab
 
 # ----- 作業ディレクトリ -----
-RUN mkdir -p /workspace && chown yoshida:yoshida /workspace
+RUN mkdir -p /workspace && chown ${USERNAME}:${USERNAME} /workspace
 
-# ----- 以降はユーザ yoshida として実行 -----
-USER yoshida
+# ----- 以降はビルド引数で指定したユーザとして実行 -----
+USER ${USERNAME}
 WORKDIR /workspace
 
 # Jupyter の設定ファイルを生成
@@ -71,7 +75,7 @@ RUN jupyter notebook --generate-config && \
         -e "s/# c.NotebookApp.ip = 'localhost'/c.NotebookApp.ip = '0.0.0.0'/" \
         -e "s/# c.NotebookApp.open_browser = True/c.NotebookApp.open_browser = False/" \
         -e "s/# c.NotebookApp.port = 8888/c.NotebookApp.port = 8888/" \
-        /home/yoshida/.jupyter/jupyter_notebook_config.py
+        /home/${USERNAME}/.jupyter/jupyter_notebook_config.py
 
 # デフォルトは bash で待機 (Jupyter は手動起動)
 CMD ["/bin/bash"]
