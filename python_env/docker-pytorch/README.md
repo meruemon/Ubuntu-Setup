@@ -549,13 +549,13 @@ volumes:
 
 ### 8-2. ディレクトリ構成とサンプルファイル
 
-本リポジトリと同階層の `examples/` フォルダに、用途別のサンプル Dockerfile を用意しています。  
+本リポジトリに Dockerfile を用意しています。  
 自分のプロジェクト用に Dockerfile を書く際の参考にしてください。
 
 ```
-docker-pytorch/           ← 本リポジトリ
-├── Dockerfile            ← PyTorch GPU 環境の Dockerfile
-├── docker-compose.yml
+docker-pytorch/           ← 任意名でフォルダを作成
+├── Dockerfile            ← PyTorch GPU 環境の Dockerfile（GitHubからダウンロード）
+├── docker-compose.yml    ← docker-composeファイル（GitHubからダウンロード）
 └── workspace/            ← ホストと共有する作業ディレクトリ
 ```
 
