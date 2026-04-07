@@ -85,17 +85,3 @@ GPU なし → venv  (軽量・シンプル)
 | 9 | トラブルシューティング |
 
 ---
-
-## ファイル構成
-
-```
-./
-├── INDEX.md                  ← 本ファイル (目次)
-├── venv_README.md            ← venv 環境リファレンス
-└── docker-pytorch/
-    ├── Dockerfile            ← PyTorch GPU 環境の Dockerfile
-    ├── docker-compose.yml    ← Docker Compose 設定
-    ├── README.md             ← Docker 環境リファレンス
-    ├── workspace/            ← ホストと共有する作業ディレクトリ
-    └── examples/             ← サンプル Dockerfile 集
-```
