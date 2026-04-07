@@ -226,7 +226,7 @@ docker system prune --volumes -a
 ---
 
 ## 5. イメージの取得とビルド
-> ここからの手順説明はリファレンスですので、実行は不要です。実際の作業手順については、[実環境のセットアップ手順](#8-この環境のセットアップ手順)を参照してください。
+> ここからの手順説明はリファレンスですので、実行は不要です。実際の作業手順については、[この環境のセットアップ手順](#8-この環境のセットアップ手順)を参照してください。
 
 ### 5-1. Docker Hub からイメージを取得する
 
@@ -556,12 +556,7 @@ volumes:
 docker-pytorch/           ← 本リポジトリ
 ├── Dockerfile            ← PyTorch GPU 環境の Dockerfile
 ├── docker-compose.yml
-├── README.md
-├── workspace/            ← ホストと共有する作業ディレクトリ
-└── examples/             ← サンプル Dockerfile 集 (参考用)
-    ├── Dockerfile.simple     # 最小構成サンプル
-    ├── Dockerfile.cpu        # CPU のみ環境サンプル
-    └── Dockerfile.multiuser  # 複数ユーザ対応サンプル
+└── workspace/            ← ホストと共有する作業ディレクトリ
 ```
 
 > GitHub: `https://github.com/yourorg/docker-pytorch/tree/main/examples`
