@@ -547,62 +547,97 @@ volumes:
 | 共有ディレクトリ | `./workspace` ↔ `/workspace` |
 | Jupyter ポート | 8888 |
 
-### 8-2. ディレクトリ構成とサンプルファイル
-
-本リポジトリに Dockerfile を用意しています。  
-自分のプロジェクト用に Dockerfile を書く際の参考にしてください。
+### 8-2. 完成後のディレクトリ構成
 
 ```
-docker-pytorch/           ← 任意名でフォルダを作成
-├── Dockerfile            ← PyTorch GPU 環境の Dockerfile（GitHubからダウンロード）
-├── docker-compose.yml    ← docker-composeファイル（GitHubからダウンロード）
-└── workspace/            ← ホストと共有する作業ディレクトリ
+~/Programs/
+└── docker-pytorch/
+    ├── Dockerfile            ← GitHub からダウンロード
+    ├── docker-compose.yml    ← GitHub からダウンロード
+    └── workspace/            ← 手動で作成 (ホストとコンテナの共有領域)
 ```
 
-> GitHub: `https://github.com/yourorg/docker-pytorch/tree/main/examples`
+### 8-3. ディレクトリの作成
 
-### 8-3. ユーザ情報の設定方法
+まず作業フォルダを手動で作成します。
 
-コンテナ内にホストと同じユーザを作成することで、共有ディレクトリのファイル権限問題を防ぎます。  
-**ビルド前に Dockerfile の先頭部分を編集してください。**
+```bash
+# ① Programs フォルダを Home 直下に作成
+mkdir -p ~/Programs
+
+# ② docker-pytorch フォルダを作成して移動
+mkdir ~/Programs/docker-pytorch
+cd ~/Programs/docker-pytorch
+
+# ③ コンテナとホストの共有ディレクトリを作成
+mkdir workspace
+```
+
+作成後の確認:
+
+```bash
+ls ~/Programs/docker-pytorch/
+# workspace/
+```
+
+### 8-4. GitHub からファイルをダウンロード
+
+このリポジトリから、`Dockerfile` と `docker-compose.yml` を個別にダウンロードします。  
+ダウンロードしたファイルは、`docker-pytorch`の中に保存してください。
+
+ダウンロード後の確認:
+
+```bash
+ls -l
+# -rw-r--r-- 1 yourname yourname  XXXX  Dockerfile
+# -rw-r--r-- 1 yourname yourname  XXXX  docker-compose.yml
+# drwxr-xr-x 2 yourname yourname  4096  workspace/
+```
+
+### 8-5. ユーザ情報の設定
+
+コンテナ内にホストと同じユーザを作成することで、`workspace/` のファイル権限問題を防ぎます。  
+**ビルド前に Dockerfile の先頭部分を自分の情報に書き換えてください。**
 
 ```bash
 # ① ホスト側のユーザ情報を確認する
 id
 # 例) uid=1001(yoshida) gid=1001(yoshida)
+
+# ② Dockerfile を開く
+# vimは専門性が高いため、ファイルをダブルクリックして直接標準エディタで編集してください。
+vim Dockerfile
 ```
 
 ```dockerfile
-# ② Dockerfile の ARG を自分の情報に書き換える
+# Dockerfile の先頭付近にある ARG を自分の情報に書き換える
 ARG USERNAME=yoshida   # ← 自分のユーザ名
-ARG USER_UID=1001      # ← uid の値
-ARG USER_GID=1001      # ← gid の値
+ARG USER_UID=1001      # ← id コマンドで確認した uid
+ARG USER_GID=1001      # ← id コマンドで確認した gid
 ```
 
 > **なぜ UID を合わせるのか？**  
-> ホストとコンテナの UID が一致していないと、`./workspace` 内のファイルが  
+> ホストとコンテナの UID が一致していないと、`workspace/` 内のファイルが  
 > `root` 所有になり、ホスト側から編集できなくなることがあります。
 
-### 8-4. 環境構築の手順
+### 8-6. ビルドと起動
 
 ```bash
-# ① リポジトリのディレクトリに移動
-cd docker-pytorch
+# 作業ディレクトリにいることを確認
+cd ~/Programs/docker-pytorch
 
-# ② Dockerfile の ARG を自分のユーザ情報に編集 (8-3 参照)
-# vimは専門性が高いため、ファイルをダブルクリックして標準エディタで編集してよい
-vim Dockerfile
-
-# ③ ホストとコンテナで共有する作業ディレクトリを作成
-mkdir -p workspace
-
-# ④ イメージをビルド (初回のみ。5〜15分かかります)
+# ① イメージをビルド (初回のみ。5〜15分かかります)
 docker compose build
 
-# ⑤ コンテナをバックグラウンドで起動
+# ② コンテナをバックグラウンドで起動
 docker compose up -d
 
-# ⑥ コンテナに入る
+# ③ 起動状態を確認
+docker compose ps
+# NAME            IMAGE               STATUS          PORTS
+# pytorch1x-gpu   pytorch1x-gpu-env   Up              0.0.0.0:8888->8888/tcp
+
+# ④ コンテナに入る
 docker compose exec pytorch bash
 
 # コンテナ内のプロンプトが表示されれば成功
