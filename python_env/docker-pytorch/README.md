@@ -590,6 +590,7 @@ ARG USER_GID=1001      # ← gid の値
 cd docker-pytorch
 
 # ② Dockerfile の ARG を自分のユーザ情報に編集 (8-3 参照)
+# vimは専門性が高いため、ファイルをダブルクリックして標準エディタで編集してよい
 vim Dockerfile
 
 # ③ ホストとコンテナで共有する作業ディレクトリを作成
