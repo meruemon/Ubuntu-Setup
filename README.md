@@ -7,7 +7,7 @@
 
 # Python
 
-- [Python環境構築][python_env/INDEX.md]
+- [Python環境構築](python_env/INDEX.md)
 
 # Latex
 
