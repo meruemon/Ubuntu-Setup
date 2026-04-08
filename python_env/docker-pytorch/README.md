@@ -680,55 +680,106 @@ docker compose exec pytorch bash
 
 ---
 
-## 8-8. 応用: 自分でゼロから環境を構築する場合
+## 8-8. 応用: 自分でゼロから環境を構築する場合 (PyTorch 2.x の例)
 
 ここまでの手順では用意された `Dockerfile` と `docker-compose.yml` を使いました。  
-自分のプロジェクトに合わせてゼロから環境を構築したい場合の考え方を説明します。
+ここでは **PyTorch 2.x + CUDA 11.8** を例に、ゼロから環境を構築する手順を説明します。  
+バージョンや用途が変わっても、考え方とステップは同じです。
+
+### PyTorch 1.x と 2.x の主な違い
+
+| 項目 | PyTorch 1.x (本環境) | PyTorch 2.x (応用例) |
+|---|---|---|
+| バージョン例 | 1.13.1 | 2.1.0 |
+| 対応 CUDA | 11.7 (`cu117`) | 11.8 (`cu118`) |
+| ベースイメージ | `cuda:11.7.1-cudnn8-devel-ubuntu22.04` | `cuda:11.8.0-cudnn8-devel-ubuntu22.04` |
+| pip インデックス | `whl/cu117` | `whl/cu118` |
+| `torch.compile()` | 非対応 | 対応 (モデル高速化) |
+| Python | 3.10 推奨 | 3.10 / 3.11 推奨 |
+
+> **CUDA バージョンとドライバの対応**  
+> ホスト側のドライバが CUDA 11.8 以上に対応しているか `nvidia-smi` で確認してください。  
+> `nvidia-smi` の "CUDA Version" 欄がインストールしたい CUDA 以上であれば動作します。
 
 ### ステップ 1: 必要なものを整理する
 
 まず以下を決めてからファイルを書き始めると迷いにくくなります。
 
-| 決めること | 例 |
+| 決めること | PyTorch 2.x の例 |
 |---|---|
-| ベースイメージ (OS・CUDA バージョン) | `nvcr.io/nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04` |
-| Python のバージョン | 3.10 |
-| 使うライブラリとバージョン | torch 1.13.1, numpy, pandas … |
-| コンテナとホストで共有するディレクトリ | `./myproject:/workspace` |
+| ベースイメージ (OS・CUDA バージョン) | `nvcr.io/nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04` |
+| Python のバージョン | 3.11 |
+| PyTorch バージョン | 2.1.0+cu118 |
+| 使うライブラリ | torchvision 0.16.0, numpy, pandas, matplotlib … |
+| 共有ディレクトリ | `./myproject:/workspace` |
 | 開放するポート番号 | 8888 (Jupyter) |
 
 ### ステップ 2: Dockerfile を書く
 
-`examples/` フォルダのサンプルを出発点にして、必要なライブラリだけを残したり追加したりします。
+PyTorch 2.x 向けのポイントは **ベースイメージの CUDA バージョン** と  
+**pip の `--extra-index-url` のサフィックス** (`cu117` → `cu118`) の2箇所です。
 
 ```dockerfile
-FROM nvcr.io/nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04
+# ===== PyTorch 2.x 環境の Dockerfile サンプル =====
 
-ARG USERNAME=yourname   # ← 自分のユーザ名
+# ① CUDA 11.8 + cuDNN 8 + Ubuntu 22.04 のベースイメージ
+FROM nvcr.io/nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
+
+# ② ユーザ設定 (ホストの id コマンドで確認した値に書き換える)
+ARG USERNAME=yourname
 ARG USER_UID=1001
 ARG USER_GID=1001
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Tokyo
 
+# ③ システムパッケージ
+#    Ubuntu 22.04 は Python 3.10 標準搭載だが、3.11 を使う場合は deadsnakes PPA を追加
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        python3.10 python3-pip python3-venv git vim \
+        software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        python3.11 python3.11-dev python3.11-distutils \
+        python3-pip build-essential git vim wget curl ca-certificates \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir \
-        torch==1.13.1+cu117 \
-        --extra-index-url https://download.pytorch.org/whl/cu117
+# python3.11 をデフォルトに設定
+RUN update-alternatives --install /usr/bin/python  python  /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/pip    pip    /usr/bin/pip3       1
 
-# ↓ 自分のプロジェクトに必要なライブラリを追加していく
-RUN pip install --no-cache-dir \
-        numpy pandas matplotlib jupyter
+# ④ PyTorch 2.x (CUDA 11.8 対応版) をインストール
+#    cu118 の部分が PyTorch 1.x の cu117 と異なる点
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+        torch==2.1.0+cu118 \
+        torchvision==0.16.0+cu118 \
+        torchaudio==2.1.0+cu118 \
+        --extra-index-url https://download.pytorch.org/whl/cu118
 
+# ⑤ 自分のプロジェクトに必要なライブラリを追加していく
+RUN pip install --no-cache-dir \
+        numpy scipy pandas scikit-learn \
+        matplotlib seaborn \
+        jupyter notebook jupyterlab ipywidgets \
+        tqdm joblib
+
+# ⑥ ユーザ作成 (ホストと同じ UID で作成)
 RUN groupadd -g ${USER_GID} ${USERNAME} \
     && useradd -m -u ${USER_UID} -g ${USERNAME} -s /bin/bash ${USERNAME}
 
 RUN mkdir -p /workspace && chown ${USERNAME}:${USERNAME} /workspace
 USER ${USERNAME}
 WORKDIR /workspace
+
+# Jupyter 設定
+RUN jupyter notebook --generate-config && \
+    sed -i \
+        -e "s/# c.NotebookApp.ip = 'localhost'/c.NotebookApp.ip = '0.0.0.0'/" \
+        -e "s/# c.NotebookApp.open_browser = True/c.NotebookApp.open_browser = False/" \
+        -e "s/# c.NotebookApp.port = 8888/c.NotebookApp.port = 8888/" \
+        /home/${USERNAME}/.jupyter/jupyter_notebook_config.py
+
 CMD ["/bin/bash"]
 ```
 
@@ -739,18 +790,18 @@ Dockerfile に対応する `docker-compose.yml` を書きます。
 
 ```yaml
 services:
-  myproject:                       # サービス名 (プロジェクト名など)
+  myproject:                       # ★ サービス名 (任意)
     build:
       context: .
       dockerfile: Dockerfile
-    image: myproject-env           # イメージ名 (プロジェクト名-env など)
-    container_name: myproject-gpu  # コンテナ名 (プロジェクト名-gpu など)
+    image: myproject-pytorch2-env  # ★ イメージ名 (任意)
+    container_name: myproject-gpu  # ★ コンテナ名 (任意)
 
     volumes:
-      - ./myproject:/workspace     # 共有ディレクトリ (プロジェクト名に合わせる)
+      - ./myproject:/workspace     # ★ ホスト側共有ディレクトリ名 (任意)
 
     ports:
-      - "8888:8888"
+      - "8888:8888"                # ★ ホスト側ポート (競合時は左側を変更)
 
     stdin_open: true
     tty: true
@@ -787,14 +838,28 @@ docker compose ps   # Status が Up になっているか確認
 # ③ コンテナに入れるか
 docker compose exec myproject bash
 
-# ④ Python と主要ライブラリが使えるか (コンテナ内で実行)
+# ④ Python と PyTorch のバージョンを確認 (コンテナ内で実行)
 python --version
-python -c "import torch; print(torch.__version__)"
-python -c "import torch; print(torch.cuda.is_available())"
+# Python 3.11.x
 
-# ⑤ workspace にファイルを作ってホストからも見えるか (コンテナ内で実行)
+python -c "import torch; print(torch.__version__)"
+# 2.1.0+cu118
+
+python -c "import torch; print(torch.cuda.is_available())"
+# True
+
+# ⑤ PyTorch 2.x の新機能 torch.compile() が使えるか確認
+python -c "
+import torch
+model = torch.nn.Linear(10, 5).cuda()
+compiled = torch.compile(model)   # PyTorch 2.x の目玉機能
+x = torch.rand(4, 10).cuda()
+print(compiled(x).shape)          # torch.Size([4, 5]) と表示されれば成功
+"
+
+# ⑥ workspace にファイルを作ってホストからも見えるか (コンテナ内で実行)
 touch /workspace/test.txt
-# ホスト側で確認
+# ホスト側の別ターミナルで確認
 ls ./myproject/test.txt   # 見えれば共有が正しく機能している
 ```
 
