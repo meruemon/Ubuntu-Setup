@@ -124,6 +124,7 @@ docker run --rm hello-world
 ---
 
 ## 4. よく使う Docker コマンド
+> 本セクションはリファレンスですので、実行は不要です。実際の作業手順については、[この環境のセットアップ手順](#8-この環境のセットアップ手順)を参照してください。
 
 ### 4-1. イメージ操作
 
@@ -226,7 +227,6 @@ docker system prune --volumes -a
 ---
 
 ## 5. イメージの取得とビルド
-> ここからの手順説明はリファレンスですので、実行は不要です。実際の作業手順については、[この環境のセットアップ手順](#8-この環境のセットアップ手順)を参照してください。
 
 ### 5-1. Docker Hub からイメージを取得する
 
@@ -294,8 +294,7 @@ Dockerfile はイメージの設計図です。上から順に命令が実行さ
 
 > ⚠️ **このサンプルはあくまで学習用の例です。**  
 > 実際のプロジェクトでは要件に応じて内容を変更してください。  
-> 本リポジトリと同階層の `examples/` フォルダに用途別のサンプル Dockerfile を用意しています。  
-> GitHub: `https://github.com/yourorg/docker-pytorch/tree/main/examples`
+> 本リポジトリにサンプル Dockerfile を用意しています。  
 
 ```dockerfile
 # ① ベースイメージを指定
@@ -620,7 +619,42 @@ ARG USER_GID=1001      # ← id コマンドで確認した gid
 > ホストとコンテナの UID が一致していないと、`workspace/` 内のファイルが  
 > `root` 所有になり、ホスト側から編集できなくなることがあります。
 
-### 8-6. ビルドと起動
+### 8-6. docker-compose.yml の変更可能な項目
+
+`docker-compose.yml` にはプロジェクトや用途に合わせて **任意に変更できる名前** が含まれています。  
+複数の環境を使い分ける場合や、自分の環境に合わせてカスタマイズする際に編集してください。
+
+```yaml
+services:
+  pytorch:              # ★ サービス名: docker compose exec <ここ> bash で使う名前
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pytorch1x-gpu-env    # ★ イメージ名: docker images で表示される名前
+    container_name: pytorch1x-gpu  # ★ コンテナ名: docker ps で表示される名前
+
+    volumes:
+      - ./workspace:/workspace  # ★ 左側: ホスト側の共有ディレクトリパス (変更可)
+                                #    右側: コンテナ内のパス (Dockerfile と合わせる)
+    ports:
+      - "8888:8888"   # ★ 左側: ホスト側ポート番号 (他と競合する場合は変更)
+                      #    右側: コンテナ内ポート番号 (変更不要)
+```
+
+**各項目の変更例:**
+
+| 項目 | デフォルト値 | 変更例 | 変更が必要な場面 |
+|---|---|---|---|
+| サービス名 | `pytorch` | `myenv` | 特にこだわりがなければそのままでよい |
+| イメージ名 | `pytorch1x-gpu-env` | `tanaka-pytorch` | 複数のイメージを管理するとき |
+| コンテナ名 | `pytorch1x-gpu` | `tanaka-gpu-env` | 同名コンテナが既に存在するとき |
+| ホスト側ポート | `8888` | `8889` | ポート 8888 が他のプロセスに使われているとき |
+| ホスト側共有ディレクトリ | `./workspace` | `./myproject` | 共有フォルダ名を変えたいとき |
+
+> **注意**: サービス名を変更した場合、`docker compose exec` のコマンドも合わせて変更してください。  
+> 例: サービス名を `myenv` にした場合 → `docker compose exec myenv bash`
+
+### 8-7. ビルドと起動
 
 ```bash
 # 作業ディレクトリにいることを確認
@@ -642,6 +676,126 @@ docker compose exec pytorch bash
 
 # コンテナ内のプロンプトが表示されれば成功
 # yourname@<コンテナID>:/workspace$
+```
+
+---
+
+## 8-8. 応用: 自分でゼロから環境を構築する場合
+
+ここまでの手順では用意された `Dockerfile` と `docker-compose.yml` を使いました。  
+自分のプロジェクトに合わせてゼロから環境を構築したい場合の考え方を説明します。
+
+### ステップ 1: 必要なものを整理する
+
+まず以下を決めてからファイルを書き始めると迷いにくくなります。
+
+| 決めること | 例 |
+|---|---|
+| ベースイメージ (OS・CUDA バージョン) | `nvcr.io/nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04` |
+| Python のバージョン | 3.10 |
+| 使うライブラリとバージョン | torch 1.13.1, numpy, pandas … |
+| コンテナとホストで共有するディレクトリ | `./myproject:/workspace` |
+| 開放するポート番号 | 8888 (Jupyter) |
+
+### ステップ 2: Dockerfile を書く
+
+`examples/` フォルダのサンプルを出発点にして、必要なライブラリだけを残したり追加したりします。
+
+```dockerfile
+FROM nvcr.io/nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04
+
+ARG USERNAME=yourname   # ← 自分のユーザ名
+ARG USER_UID=1001
+ARG USER_GID=1001
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Tokyo
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3.10 python3-pip python3-venv git vim \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir \
+        torch==1.13.1+cu117 \
+        --extra-index-url https://download.pytorch.org/whl/cu117
+
+# ↓ 自分のプロジェクトに必要なライブラリを追加していく
+RUN pip install --no-cache-dir \
+        numpy pandas matplotlib jupyter
+
+RUN groupadd -g ${USER_GID} ${USERNAME} \
+    && useradd -m -u ${USER_UID} -g ${USERNAME} -s /bin/bash ${USERNAME}
+
+RUN mkdir -p /workspace && chown ${USERNAME}:${USERNAME} /workspace
+USER ${USERNAME}
+WORKDIR /workspace
+CMD ["/bin/bash"]
+```
+
+### ステップ 3: docker-compose.yml を書く
+
+Dockerfile に対応する `docker-compose.yml` を書きます。  
+**名前はすべて任意**なので、プロジェクトの内容がわかる名前をつけると管理しやすくなります。
+
+```yaml
+services:
+  myproject:                       # サービス名 (プロジェクト名など)
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: myproject-env           # イメージ名 (プロジェクト名-env など)
+    container_name: myproject-gpu  # コンテナ名 (プロジェクト名-gpu など)
+
+    volumes:
+      - ./myproject:/workspace     # 共有ディレクトリ (プロジェクト名に合わせる)
+
+    ports:
+      - "8888:8888"
+
+    stdin_open: true
+    tty: true
+    restart: "no"
+
+    environment:
+      - PYTHONUNBUFFERED=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+    working_dir: /workspace
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+```
+
+### ステップ 4: 動作確認のチェックリスト
+
+環境を構築したら以下を順に確認します。
+
+```bash
+# ① ビルドが通るか
+docker compose build
+
+# ② コンテナが起動するか
+docker compose up -d
+docker compose ps   # Status が Up になっているか確認
+
+# ③ コンテナに入れるか
+docker compose exec myproject bash
+
+# ④ Python と主要ライブラリが使えるか (コンテナ内で実行)
+python --version
+python -c "import torch; print(torch.__version__)"
+python -c "import torch; print(torch.cuda.is_available())"
+
+# ⑤ workspace にファイルを作ってホストからも見えるか (コンテナ内で実行)
+touch /workspace/test.txt
+# ホスト側で確認
+ls ./myproject/test.txt   # 見えれば共有が正しく機能している
 ```
 
 ---
