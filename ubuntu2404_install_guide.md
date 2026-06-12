@@ -341,6 +341,14 @@ ibus restart
 
 ### 5-8. NVIDIAグラフィックドライバの設定
 
+nouveauの無効化
+```bash
+sudo bash -c "echo 'blacklist nouveau' > /etc/modprobe.d/blacklist-nouveau.conf"
+sudo bash -c "echo 'options nouveau modeset=0' >> /etc/modprobe.d/blacklist-nouveau.conf"
+sudo update-initramfs -u
+sudo reboot
+```
+
 ```bash
 # 利用可能なNVIDIAドライバを確認
 sudo ubuntu-drivers list
