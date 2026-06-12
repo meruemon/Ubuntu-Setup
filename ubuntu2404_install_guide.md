@@ -286,15 +286,6 @@ ip a
 ```bash
 # SSH接続を許可（リモート接続している場合は先に実行）
 sudo ufw allow ssh
-
-# ufwを有効化
-sudo ufw enable
-
-# 状態確認
-sudo ufw status numbered
-
-# Webサーバー（ポート80）を許可する場合
-sudo ufw allow 80/tcp
 ```
 
 > ⚠️ SSHでリモート接続中の場合、`sudo ufw allow ssh` を**先に**実行してからファイアウォールを有効化すること。順序を守らないと接続が切断される。
