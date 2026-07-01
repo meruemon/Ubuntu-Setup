@@ -86,7 +86,7 @@ If the last command shows `nvidia-smi` output from inside the container, GPU pas
 ```bash
 mkdir -p ~/kv260_project/Vitis/vitis_r3.5
 cd ~/kv260_project/Vitis/vitis_r3.5
-git clone -b 3.5 https://github.com/Xilinx/Vitis-AI
+git clone -b v3.5 https://github.com/Xilinx/Vitis-AI
 cd Vitis-AI
 ```
 
