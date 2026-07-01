@@ -538,4 +538,4 @@ Because the detection head was separated in B-3, the DPU output is the **raw fea
 
 ---
 
-*This manual is based on the source memo, with content verified and supplemented using public information. Keep coming back — both before you start and while debugging — to the single most decisive point: the three versions (DPU architecture, VART, and `arch.json`) must all be aligned.*
+*Keep coming back — both before you start and while debugging — to the single most decisive point: the three versions (DPU architecture, VART, and `arch.json`) must all be aligned.*
