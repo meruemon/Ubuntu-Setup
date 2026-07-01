@@ -529,22 +529,7 @@ Because the detection head was separated in B-3, the DPU output is the **raw fea
 
 # Appendix
 
-## A. Rationale for the version choices (summary)
-
-- **YOLOv7**: Included in AMD's Vitis AI Copyleft Model Zoo, with official training/quantization assets for the DPUCZDX8G. Good affinity with the PyTorch flow. -> The sweet spot of "recent × stable."
-- **Vitis AI 3.5 (this manual)**: Matches the source memo's configuration. The toolchain is usable with the KV260. However, AMD recommends 3.0 for MPSoC evaluation, so **standardizing both sides on 3.0 is equally valid**.
-- **DPU is B4096**: The standard KV260 configuration. Load it with the `benchmark-b4096` overlay and compile with the same `arch.json` to keep them aligned.
-
-## B. Reference links (from the source memo)
-
-- Kria KV260 setup memo (Ubuntu 24.04 edition): https://zenn.dev/ryuz88/articles/kv260_setup_memo_ubuntu24
-- Custom YOLOv7 on the KV260 DPU (transfer learning to deployment): https://zenn.dev/douhaku/articles/kv260-yolov7-voc
-- YOLOX on Vitis AI 3.5 and the KV260: https://misoji-engineer.com/archives/vitis-ai-3-5-kv260-yolox.html
-- Building PyTorch CPU/GPU environments with Vitis AI 3.0: https://misoji-engineer.com/archives/vitis-ai-3-0.html
-- Initial KV260/KR260 setup: https://zenn.dev/ryuz88/articles/kria_setup_ubuntu22
-- Reference implementation (GitHub): https://github.com/douhaku1115/kv260/tree/main/kv260_yolov7_voc
-
-## C. Official documentation
+## Official documentation
 
 - Vitis AI (GitHub main / releases): https://github.com/Xilinx/Vitis-AI
 - Vitis AI 3.5 documentation: https://xilinx.github.io/Vitis-AI/3.5/html/index.html
