@@ -14,3 +14,9 @@
 研究室向けマニュアル
 
 - [Overleafを用いた卒論執筆](latex_guide.md)
+
+# Kria KV260
+
+Manual
+
+- [KV260 YOLOv7 VitisAI Procedure Manual](KV260_YOLOv7_VitisAI_Procedure_Manual_EN.md)
