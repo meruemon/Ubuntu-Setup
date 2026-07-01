@@ -321,16 +321,15 @@ iot-limerick-kria-classic-desktop-2204-20240304-165.img
 
 > **Note:** KV260 applications support **Ubuntu 22.04 only**; 24.04 is not supported (this is separate from the 24.04 on the host).
 
-## D-2. ⚠️ Verify the boot firmware update (do this first — most important)
+## D-2. Check the boot firmware (not needed for units purchased in 2025)
 
-The Ubuntu 22.04 image **will not boot unless the KV260 boot FW is 2022.1 or newer** (it will not boot on the old 2021.1 FW).
+The KV260 used in this procedure was **purchased in 2025**, so its factory boot FW is newer than 2022.1 and **no FW update is required**. You can skip D-2 and go straight to D-3.
 
-- If the FW is old or unknown, first boot a working image such as PetaLinux and **update to the 2022.1 boot FW**, then write 22.04.
-- If it stops booting, you can recover with the standalone FW update & recovery utility (via BOOT.BIN).
+> **For reference (only if using an older unit):** The Ubuntu 22.04 image will not boot unless the KV260 boot FW is 2022.1 or newer (it will not boot on the old 2021.1 FW). On an older or unknown unit, first boot a working image such as PetaLinux, **update to the 2022.1 boot FW**, then write 22.04. If it stops booting, recover with the standalone FW update & recovery utility (via BOOT.BIN).
 
 ## D-3. Write to the SD card
 
-Using `dd` (Balena Etcher also works):
+On Ubuntu, use **`dd`**. Balena Etcher often fails with an error when writing on Ubuntu, so `dd` is the reliable method here.
 
 ```bash
 # Decompress
@@ -346,14 +345,7 @@ sync
 sudo eject /dev/sdX
 ```
 
-Using Balena Etcher (Linux, launched with sandbox disabled):
-
-```bash
-unzip balenaEtcher-linux-x64-*.zip
-cd balenaEtcher-linux-x64
-./balena-etcher --no-sandbox
-# -> Use the UI to write the .img above to the memory card
-```
+> **Note:** On Ubuntu, Balena Etcher can error out when writing (even with `./balena-etcher --no-sandbox`). If you need a GUI tool, run it from a non-Ubuntu machine; on Ubuntu, use the `dd` method above.
 
 ## D-4. First boot and login
 
@@ -369,10 +361,12 @@ sudo add-apt-repository ppa:xilinx-apps --yes
 sudo add-apt-repository ppa:ubuntu-xilinx/default --yes
 sudo add-apt-repository ppa:xilinx-apps/xilinx-drivers --yes
 sudo apt update --yes
-sudo apt full-upgrade --yes
+sudo apt upgrade --yes
 ```
 
 - This can take **10–20 minutes**. A reboot afterward is recommended.
+
+> **Note (`upgrade` vs `full-upgrade`):** As in AMD's official first-boot instructions (and the source memo), `apt upgrade` is sufficient. `full-upgrade` (formerly `dist-upgrade`) differs in that it will add or remove packages to resolve dependencies, and because it can remove packages it is not the default choice for a board image. Use `sudo apt full-upgrade --yes` only if `apt upgrade` reports packages that are "kept back" (often the kernel or `xlnx-firmware`) and you want those updated as well.
 
 (If you also want Docker on the KV260)
 
@@ -529,12 +523,11 @@ Because the detection head was separated in B-3, the DPU output is the **raw fea
 
 # Appendix
 
-## Official documentation
+## Rationale for the version choices (summary)
 
-- Vitis AI (GitHub main / releases): https://github.com/Xilinx/Vitis-AI
-- Vitis AI 3.5 documentation: https://xilinx.github.io/Vitis-AI/3.5/html/index.html
-- Kria KV260 apps / board setup: https://xilinx.github.io/kria-apps-docs/
-- Certified Ubuntu for Xilinx Devices (images): https://ubuntu.com/download/amd
+- **YOLOv7**: Included in AMD's Vitis AI Copyleft Model Zoo, with official training/quantization assets for the DPUCZDX8G. Good affinity with the PyTorch flow. -> The sweet spot of "recent × stable."
+- **Vitis AI 3.5 (this manual)**: Matches the source memo's configuration. The toolchain is usable with the KV260. However, AMD recommends 3.0 for MPSoC evaluation, so **standardizing both sides on 3.0 is equally valid**.
+- **DPU is B4096**: The standard KV260 configuration. Load it with the `benchmark-b4096` overlay and compile with the same `arch.json` to keep them aligned.
 
 ---
 
