@@ -1,6 +1,6 @@
 # Procedure Manual: Running YOLOv7 on the Kria KV260 (Vitis AI 3.5 / PyTorch Flow)
 
-This manual walks through the complete flow: quantizing and compiling YOLOv7 on a host PC (Ubuntu 24.04), then running inference on the DPU of a Kria KV260 (Ubuntu 22.04). It is based on an internal "Kria KV260 setup memo," with the content verified and reinforced against official documentation and current working examples.
+This manual walks through the complete flow: quantizing and compiling YOLOv7 on a host PC (Ubuntu 24.04), then running inference on the DPU of a Kria KV260 (Ubuntu 22.04). 
 
 ---
 
