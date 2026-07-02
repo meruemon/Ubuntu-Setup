@@ -57,7 +57,7 @@ The majority of KV260 problems come from **version mismatches**. **Make sure you
 1. **DPU architecture must match** — The `arch.json` you specify at compile time (B4096 in this manual) must match the DPU overlay actually loaded on the KV260. A mismatch causes a **fingerprint mismatch** failure at runtime.
 2. **VART version must match** — The Vitis AI version used to compile the xmodel (3.5 here) must match the VART (Vitis AI Runtime) version on the KV260. The default VART on the stock Ubuntu 22.04 image is **2.5**, so a model compiled with 3.5 will not run as-is (addressed in D-7).
 
-> **Note (official guidance):** AMD recommends **Vitis AI 3.0** for evaluating MPSoC/KV260, while 3.5 primarily targets the Versal family. That said, the 3.5 toolchain (Quantizer / Compiler / VART) can be used with the KV260 (DPUCZDX8G). This manual standardizes on 3.5 to match the source memo, but **a setup where both the host and the KV260 use 3.0 works with this procedure too** (just read the version numbers below as 3.0).
+> **Note (official guidance):** AMD recommends **Vitis AI 3.0** for evaluating MPSoC/KV260, while 3.5 primarily targets the Versal family. That said, the 3.5 toolchain (Quantizer / Compiler / VART) can be used with the KV260 (DPUCZDX8G). This manual standardizes on 3.5, but **a setup where both the host and the KV260 use 3.0 works with this procedure too** (just read the version numbers below as 3.0).
 
 ---
 
@@ -366,7 +366,7 @@ sudo apt upgrade --yes
 
 - This can take **10–20 minutes**. A reboot afterward is recommended.
 
-> **Note (`upgrade` vs `full-upgrade`):** As in AMD's official first-boot instructions (and the source memo), `apt upgrade` is sufficient. `full-upgrade` (formerly `dist-upgrade`) differs in that it will add or remove packages to resolve dependencies, and because it can remove packages it is not the default choice for a board image. Use `sudo apt full-upgrade --yes` only if `apt upgrade` reports packages that are "kept back" (often the kernel or `xlnx-firmware`) and you want those updated as well.
+> **Note (`upgrade` vs `full-upgrade`):** As in AMD's official first-boot instructions, `apt upgrade` is sufficient. `full-upgrade` (formerly `dist-upgrade`) differs in that it will add or remove packages to resolve dependencies, and because it can remove packages it is not the default choice for a board image. Use `sudo apt full-upgrade --yes` only if `apt upgrade` reports packages that are "kept back" (often the kernel or `xlnx-firmware`) and you want those updated as well.
 
 (If you also want Docker on the KV260)
 
@@ -526,7 +526,7 @@ Because the detection head was separated in B-3, the DPU output is the **raw fea
 ## A. Rationale for the version choices (summary)
 
 - **YOLOv7**: Included in AMD's Vitis AI Copyleft Model Zoo, with official training/quantization assets for the DPUCZDX8G. Good affinity with the PyTorch flow. -> The sweet spot of "recent × stable."
-- **Vitis AI 3.5 (this manual)**: Matches the source memo's configuration. The toolchain is usable with the KV260. However, AMD recommends 3.0 for MPSoC evaluation, so **standardizing both sides on 3.0 is equally valid**.
+- **Vitis AI 3.5 (this manual)**: The toolchain is usable with the KV260. However, AMD recommends 3.0 for MPSoC evaluation, so **standardizing both sides on 3.0 is equally valid**.
 - **DPU is B4096**: The standard KV260 configuration. Load it with the `benchmark-b4096` overlay and compile with the same `arch.json` to keep them aligned.
  
 ## B. Official documentation
