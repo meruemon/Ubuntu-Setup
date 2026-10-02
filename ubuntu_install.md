@@ -1,25 +1,797 @@
-# Ubuntuの初期設定方法
+# Ubuntu 24.04 インストールと初期設定ガイド
 
-**注意** 研究室の計算機はUbuntu 22.04や24.04がインストールされているため，本資料は古い情報が含まれます．なお，同レポジトリのシェルスクリプトは22.04に対応しています．
+> Ubuntu 24.04 LTS（開発コードネーム: Noble Numbat）のインストール手順と初期設定を解説する。  
+> 本バージョンは **2029年5月まで標準サポート**、Ubuntu Pro により **2034年4月まで拡張セキュリティ保守**、Legacy add-on により **2039年4月まで延長可能（最大15年間）** である。
+>
+> 実験環境は [Docker](https://ja.wikipedia.org/wiki/Docker) を前提としているため、ホストにインストールするソフトウェアは必要最小限とする。Python や PyTorch などの開発環境はホストに直接入れず、[Python 環境構築](python_env/INDEX.md) に従ってコンテナまたは仮想環境の中に作る。
 
-[Ubuntu 20.04.1 LTS 日本語Remix](https://www.ubuntulinux.jp/products/JA-Localized/download)のセットアップ方法を以下に記載する.
-OSはインストール時点で最新のLTS (Long Term Support：長期サポート)版を使用する.
+---
 
-実験環境は，[Docker](https://ja.wikipedia.org/wiki/Docker)を前提としているため，ホストにインストールするソフトウェアは必要最小限としている.
-OSインストール時にも，『最小インストール』を選択する.
+## 目次
 
-以降，『端末』を開いて，記載順に設定を行う．なお，端末はショートカットキー`Ctrl+Alt+t`を入力して開くことができる．
-`$`マークに続く入力がコマンド部分を表し，それ以外は出力例を表す．`sudo`が先頭に付けられたコマンドは管理者権限が必要な操作を表す．
+1. [Ubuntu 24.04 の基本情報](#1-ubuntu-2404-の基本情報)
+2. [インストール前の準備](#2-インストール前の準備)
+3. [ISOダウンロードとインストールメディアの作成](#3-isoダウンロードとインストールメディアの作成)
+4. [インストール手順](#4-インストール手順)
+5. [初期設定](#5-初期設定)
+   - [5-1. プロキシ設定](#5-1-プロキシ設定)
+   - [5-2. システムの更新](#5-2-システムの更新)
+   - [5-3. 個人ユーザーの追加](#5-3-個人ユーザーの追加)
+   - [5-4. sudo（管理者権限）について](#5-4-sudo管理者権限について)
+   - [5-5. ホームディレクトリの英語化](#5-5-ホームディレクトリの英語化)
+   - [5-6. ネットワーク設定の確認（DHCP）](#5-6-ネットワーク設定の確認dhcp)
+   - [5-7. ファイアウォールの設定（ufw）](#5-7-ファイアウォールの設定ufw)
+   - [5-8. 日時設定（NTP）](#5-8-日時設定ntp)
+   - [5-9. 日本語入力の設定](#5-9-日本語入力の設定)
+   - [5-10. NVIDIAグラフィックドライバの設定](#5-10-nvidiaグラフィックドライバの設定)
+   - [5-11. Docker のインストール](#5-11-docker-のインストール)
+   - [5-12. SSD向け推奨設定](#5-12-ssd向け推奨設定)
+   - [5-13. ソフトウェアのインストール](#5-13-ソフトウェアのインストール)
+   - [5-14. OpenSSH サーバの設定](#5-14-openssh-サーバの設定)
+6. [トラブルシューティング](#6-トラブルシューティング)
+7. [次のステップ](#7-次のステップ)
+8. [付録](#8-付録)
+   - [8-1. よく使う Linux コマンド](#8-1-よく使う-linux-コマンド)
+   - [8-2. vi の基本操作](#8-2-vi-の基本操作)
 
-`vi`コマンドを使用して端末からファイルを編集する.
-必要最低限の`vi`コマンドの[操作方法](https://eng-entrance.com/linux-command-vi)を以下に示す．
+---
 
-| コマンド|  説明  |
+## 1. Ubuntu 24.04 の基本情報
+
+| 項目 | 内容 |
+|------|------|
+| バージョン | Ubuntu 24.04 LTS（Noble Numbat） |
+| リリース | 2024年4月 |
+| 標準サポート | 2029年5月まで（5年間） |
+| 拡張サポート（Ubuntu Pro） | 2034年4月まで（10年間） |
+| 最大延長（Legacy add-on） | 2039年4月まで（15年間） |
+| イメージサイズ | 約5.7GB（デスクトップ版） |
+| 公式サイト | https://jp.ubuntu.com/download |
+| 公式リリースページ | https://releases.ubuntu.com/noble/ |
+
+### LTS版と通常リリースの比較
+
+| 種別 | リリース頻度 | サポート期間 | 用途 |
+|------|------------|------------|------|
+| **LTS版** | 2年ごと（4月） | 標準5年（Ubuntu Pro利用で最大15年） | 本番環境・企業・長期プロジェクト |
+| **通常リリース** | 6か月ごと | 9か月 | 最新機能を求める開発者向け |
+
+### 本リポジトリの補助スクリプト
+
+初期設定の一部は、本リポジトリのシェルスクリプトで自動化している。いずれも管理アカウント `hpc` で実行する。
+
+| スクリプト | 内容 | 使用する節 |
+|-----------|------|-----------|
+| [proxy_setup.sh](proxy_setup.sh) | 学内プロキシの設定（シェル・curl・sudo・apt） | [5-1](#5-1-プロキシ設定) |
+| [docker_install.sh](docker_install.sh) | Docker Engine・Docker Compose・NVIDIA Container Toolkit のインストール | [5-11](#5-11-docker-のインストール) |
+| [software_install.sh](software_install.sh) | Google Chrome・VS Code・LibreOffice・htop・TeamViewer・Slack のインストール | [5-13](#5-13-ソフトウェアのインストール) |
+
+---
+
+## 2. インストール前の準備
+
+### 推奨する事前準備
+
+- インストールメディア（USBメモリ）の作成
+- ノートPCの場合はACアダプタを接続
+- インターネット接続環境の確保
+
+### ネットワーク設定
+
+ネットワーク接続には **DHCP**（自動取得）を使用する。ルーターが IPアドレス・ネットマスク・デフォルトゲートウェイ・DNS サーバーを自動的に割り当てるため、追加設定は不要である。
+
+> 大学からのインターネット接続はすべて **プロキシサーバ** を経由する。インストール直後は外部に接続できないため、初期設定の最初にプロキシを設定する（→ [5-1. プロキシ設定](#5-1-プロキシ設定)）。大学以外の環境、およびプロキシを経由しない一部の部屋ではこの設定は不要である。
+
+---
+
+## 3. ISOダウンロードとインストールメディアの作成
+
+### ISOイメージのダウンロード
+
+1. 以下のいずれかからダウンロードする
+   - **公式リリースページ**: https://releases.ubuntu.com/noble/
+   - **ミラーサイトポータル**: https://launchpad.net/ubuntu/+cdmirrors
+2. 日本国内の HTTPS 対応ミラーサイトを選択すると速度が向上することがある
+3. デスクトップ版の ISO（`ubuntu-24.04.x-desktop-amd64.iso`）を選択してダウンロード
+
+> ダウンロードが途中で失敗した場合は、別のミラーサイトを試す。
+
+### インストールメディアの作成
+
+#### Windows（Rufus を使用）
+
+1. [Rufus](https://rufus.ie/) をダウンロードして起動する
+2. 以下の設定を行う
+
+| 設定項目 | 推奨値 |
+|---------|--------|
+| デバイス | 使用するUSBメモリを選択 |
+| ブートの種類 | ダウンロードしたUbuntu ISOファイル |
+| パーティション構成 | GPT（UEFI対応PC）/ MBR（旧BIOS専用PC） |
+| ファイルシステム | FAT32 |
+
+3. 「スタート」をクリック  
+   ⚠️ **USBメモリ内のデータはすべて消去される。**
+
+#### macOS / Linux（balenaEtcher を使用）
+
+1. [balenaEtcher](https://www.balena.io/etcher/) をダウンロードして起動する
+2. ISOファイルを選択し、対象のUSBメモリに書き込む
+
+---
+
+## 4. インストール手順
+
+### 4-1. USBメモリから起動する
+
+1. 作成した起動可能なUSBメモリをPCに挿入し、起動または再起動する
+2. 起動時に特定のキー（**F2 / F10 / F12 / Del / Esc** など。PCメーカーにより異なる）を押してブートメニューまたはBIOS/UEFI設定画面を開く。当研究室の計算機はF11でブートメニューが開く
+3. USBデバイスを起動順序の最優先（一番上）に設定して再起動する
+4. 起動メニューで **「Ubuntu（safe graphics）」** を選択する
+
+### 4-2. 言語・キーボード・アクセシビリティの設定
+
+1. システム言語として **「日本語」** を選択し、「Next」をクリック
+2. （不要）アクセシビリティ設定画面で必要な支援機能を選択し、「Next」をクリック
+3. 使用するキーボードレイアウト（例: 日本語）を選択し、「Next」をクリック
+
+### 4-3. インターネット接続の設定
+
+- 有線LANまたはWi-Fiで接続すると、インストール中に最新の更新プログラムやドライバをダウンロードできる
+- 学内ネットワークではプロキシ設定が済むまで外部に接続できない。更新はインストール後に行うため、そのまま進めてよい（→ [5-2. システムの更新](#5-2-システムの更新)）
+
+### 4-4. インストール方式の選択
+
+1. **「Ubuntuをインストール」** を選択し、「Next」をクリック
+2. **「対話式インストール」** を選択し、「Next」をクリック
+3. システム設定は通常 **「既定の設定」** で十分
+4. プロプライエタリドライバ（NVIDIAグラフィックドライバなど）のインストールは選択しない
+
+### 4-5. ディスクパーティションの設定
+
+「**ディスクを削除してUbuntuをインストール**」を選択し、「Next」をクリックする。
+
+### 4-6. ユーザーアカウントの設定（管理アカウント）
+
+インストール時には、システム全体を管理する**管理アカウント**を作成する。個人ユーザーの追加はインストール完了後に管理アカウントでログインしてから行う（→ [5-3. 個人ユーザーの追加](#5-3-個人ユーザーの追加)）。
+
+以下を入力し、「Next」をクリックする。
+
+| 入力項目 | 設定値 | 備考 |
+|---------|--------|------|
+| あなたの名前（フルネーム） | `HPC Admin`（任意） | 表示名 |
+| コンピュータの名前 | 指示された名前（例: `R81`） | ネットワーク上の識別名 |
+| ユーザー名 | **`hpc`** | 管理アカウントのログイン名 |
+| パスワード | （指示された文字列） | 確認のため2回入力。推測されにくいものを設定 |
+
+> **管理アカウント（hpc）の役割と運用方針**
+> - インストール直後から `sudo` コマンドで管理者権限を行使できる
+> - **`sudo` を伴うすべての管理作業（システム更新・パッケージ導入・設定変更・ユーザー管理など）は `hpc` で行う**
+> - 個人ユーザーには `sudo` 権限を付与しない。日常作業は個人ユーザーアカウントで行い、管理アカウントは管理作業専用とする
+
+### 4-7. タイムゾーンの設定
+
+地図をクリックするか、入力欄に都市名（例: `Tokyo`）を入力して **Asia/Tokyo** を選択する。
+
+### 4-8. インストールの実行と再起動
+
+1. 設定内容を確認し、「**インストール**」をクリックする
+2. インストール完了まで待機する（通常10〜30分）。**この間、電源を切らないこと。**
+3. 完了後、「**今すぐ再起動する**」をクリックする
+4. 「Please remove the installation medium, then press ENTER」が表示されたらUSBメモリを取り外し、Enterキーを押す
+
+### 4-9. 初回ログイン
+
+- 管理アカウント **`hpc`** のパスワードでログインする
+- 初回ログイン時にセットアップウィザードが表示される場合がある（スキップも可能）
+- ログイン後、学内ネットワークではまずプロキシを設定し（→ [5-1](#5-1-プロキシ設定)）、続けてシステムの更新（→ [5-2](#5-2-システムの更新)）と個人ユーザーの追加（→ [5-3](#5-3-個人ユーザーの追加)）を行う
+
+---
+
+## 5. 初期設定
+
+以降は『端末』を開いて、記載順に設定を行う。端末はショートカットキー `Ctrl+Alt+T` で開くことができる。端末の操作に慣れていない場合は、先に [8. 付録](#8-付録) を参照する。
+
+特に断りがない限り、本章の作業は管理アカウント **`hpc`** で行う。
+
+### 5-1. プロキシ設定
+
+大学からのインターネット接続はすべてプロキシサーバを経由して管理されている。内部LAN（研究室）からインターネットに接続するために、その宛先であるプロキシサーバ情報を登録する。**大学以外の環境（あるいはプロキシサーバを経由しない一部の部屋）では、本節の設定は不要である。**
+
+| 項目 | 値 |
+|------|-----|
+| プロキシサーバ | `proxy.itc.kansai-u.ac.jp` |
+| ポート番号 | `8080` |
+
+#### 管理アカウントでの設定（proxy_setup.sh）
+
+[proxy_setup.sh](proxy_setup.sh) をダウンロードして実行する。
+
+```bash
+# スクリプトをダウンロード（この時点ではプロキシ未設定のため -e オプションで直接指定する）
+wget -e https_proxy=http://proxy.itc.kansai-u.ac.jp:8080/ \
+    https://raw.githubusercontent.com/meruemon/Ubuntu-Setup/main/proxy_setup.sh
+
+# 実行（途中で sudo のパスワードを求められる）
+bash proxy_setup.sh
+
+# 設定を現在の端末に反映
+source ~/.bashrc
+```
+
+スクリプトが行う設定は以下のとおりである。
+
+| 設定先 | 内容 |
+|--------|------|
+| `~/.bashrc` | 環境変数 `http_proxy` / `https_proxy` / `ftp_proxy` を追記 |
+| `~/.curlrc` | `curl` コマンドのプロキシ設定 |
+| `/etc/sudoers.d/proxy` | `sudo` 実行時にプロキシの環境変数を引き継ぐ設定 |
+| `/etc/apt/apt.conf.d/30proxy` | `apt` コマンドのプロキシ設定 |
+
+> - スクリプトは `~/.bashrc` に追記するため、**実行は1回だけ**とする
+> - スクリプト内の「aptリポジトリをrikenに変更」の処理は、リポジトリ定義の場所が `/etc/apt/sources.list.d/ubuntu.sources` に移った Ubuntu 24.04 では反映されず、`sed` のエラーが表示される。他の設定には影響しないため、そのまま進めてよい
+
+動作確認を行う。
+
+```bash
+# トップページの HTML が index.html として保存されれば成功
+wget https://www.ubuntu.com/
+rm index.html
+
+# パッケージリストを取得できれば成功
+sudo apt update
+```
+
+#### snap の設定
+
+App Center や `snap` コマンドでソフトウェアをインストールするために、snap にもプロキシを設定する。
+
+```bash
+sudo snap set system proxy.http="http://proxy.itc.kansai-u.ac.jp:8080/"
+sudo snap set system proxy.https="http://proxy.itc.kansai-u.ac.jp:8080/"
+```
+
+#### ウェブブラウザの設定
+
+ウェブブラウザからインターネットに接続するために、「設定」→「ネットワーク」→「プロキシ」を開いて「手動」を選択し、`HTTP プロキシ` と `HTTPS プロキシ` に URL `proxy.itc.kansai-u.ac.jp` とポート番号 `8080` をそれぞれ入力する。
+
+#### 個人ユーザーでの設定
+
+`~/.bashrc`・`~/.curlrc`・ウェブブラウザの設定はユーザーごとに必要である。個人ユーザーは `sudo` を使えず `proxy_setup.sh` を実行できないため、**個人ユーザーでログインした状態で**以下を実行する。
+
+```bash
+# ~/.bashrc の末尾にプロキシ設定を追記（実行は1回だけ）
+cat >> ~/.bashrc << 'EOF'
+# Proxy settings
+export https_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
+export http_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
+export ftp_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
+EOF
+
+# curl のプロキシ設定
+echo 'proxy=http://proxy.itc.kansai-u.ac.jp:8080/' > ~/.curlrc
+
+# 設定を現在の端末に反映
+source ~/.bashrc
+```
+
+あわせて、上記「ウェブブラウザの設定」も個人ユーザーで行う。
+
+---
+
+### 5-2. システムの更新
+
+管理アカウント **`hpc`** でログインした後、システムを最新の状態にする。
+
+```bash
+# パッケージリストを更新
+sudo apt update
+
+# インストール済みパッケージを更新
+sudo apt full-upgrade
+
+# 不要なパッケージの削除
+sudo apt autoremove
+
+# 古いキャッシュの削除
+sudo apt autoclean
+```
+
+> カーネルが更新された場合は再起動が必要:
+> ```bash
+> sudo shutdown -r now
+> ```
+
+`apt` は、Debian 系のディストリビューション（Debian や Ubuntu）のパッケージ管理システム APT（Advanced Package Tool）を操作するコマンドである。`update` はパッケージリストを更新するだけであり、更新されたリストを参照して `full-upgrade` がパッケージ本体を更新する。
+
+---
+
+### 5-3. 個人ユーザーの追加
+
+**管理アカウント（`hpc`）でログインした状態**で、以下の手順で個人ユーザーを追加する。プログラミングや実験は、管理アカウントではなく個人ユーザーで行う。
+
+> **権限ポリシー**
+> - 個人ユーザーには **`sudo` 権限を付与しない**
+> - `sudo` を伴う管理作業はすべて管理アカウント `hpc` で行う
+> - 個人ユーザーは自身のホームディレクトリ配下での作業のみ行う
+
+#### コマンドラインでの追加（推奨）
+
+```bash
+# 新しい個人ユーザーを作成する（例: ユーザー名 yoshida）
+# ※ sudo グループには追加しない
+sudo adduser yoshida
+```
+
+実行すると対話形式で以下の入力が求められる:
+
+| 入力項目 | 内容 |
+|---------|------|
+| New password | 新しいパスワード（2回入力） |
+| Full Name | フルネーム（任意） |
+| その他（Room Number 等） | 任意。空欄のままEnterで進む |
+
+#### ユーザーの確認・管理
+
+以下の作業はすべて管理アカウント（`hpc`）で行う。
+
+```bash
+# 登録済みユーザーの一覧を確認
+cat /etc/passwd | grep -v "nologin\|false" | cut -d: -f1
+
+# 特定ユーザーの情報（グループ所属など）を確認（例: yoshida）
+id yoshida
+
+# ユーザーを削除する場合（ホームディレクトリも同時削除）
+sudo deluser --remove-home yoshida
+```
+
+`id yoshida` の出力例（正常な個人ユーザー）:
+```
+uid=1001(yoshida) gid=1001(yoshida) groups=1001(yoshida)
+```
+`sudo` グループが含まれていないことを確認する。
+
+> Docker を使用する個人ユーザーは、Docker のインストール後に `docker` グループへ追加する（→ [5-11. Docker のインストール](#5-11-docker-のインストール)）。
+
+#### 個人ユーザーへの切り替え
+
+```bash
+# 管理アカウントから個人ユーザーへ切り替え（例: yoshida）
+su - yoshida
+
+# 作業終了後、管理アカウントに戻る
+exit
+```
+
+または、一度ログアウトして個人ユーザーアカウントで直接ログインする。
+
+#### 個人ユーザーが初回ログイン時に行う設定
+
+以下の設定はユーザーごとに保存されるため、個人ユーザーでログインしてから各自で行う。いずれも `sudo` は不要である。
+
+| 設定 | 参照先 |
+|------|--------|
+| プロキシ設定（学内ネットワークのみ） | [5-1. プロキシ設定 — 個人ユーザーでの設定](#個人ユーザーでの設定) |
+| ホームディレクトリの英語化 | [5-5. ホームディレクトリの英語化](#5-5-ホームディレクトリの英語化) |
+| 日本語入力ソースの追加 | [5-9. 日本語入力の設定](#5-9-日本語入力の設定) |
+
+---
+
+### 5-4. sudo（管理者権限）について
+
+`sudo` を伴う管理作業は**すべて管理アカウント `hpc` で行う**。個人ユーザーは `sudo` 権限を持たないため、システム設定の変更やパッケージのインストールは行えない。
+
+```bash
+# 管理アカウント hpc でのコマンド例
+sudo apt update
+sudo systemctl restart ssh
+```
+
+- デフォルトでは root アカウントへの直接ログインは無効。管理作業は `sudo` 経由で行う
+- `sudo` 実行時はパスワードが求められる（入力中は文字が表示されない）
+- `sudo` を実行できるのは `sudo` グループに属するユーザーのみ。`hpc` のみがこのグループに属する
+
+### 5-5. ホームディレクトリの英語化
+
+日本語でインストールすると、ホームディレクトリ直下のフォルダ名（デスクトップ、ダウンロードなど）が日本語になる。ファイル名やディレクトリ名が日本語であると端末での操作に不都合な場面が多いため、英語に変換する。**この設定はユーザーごとに必要である**（管理アカウント・個人ユーザーのそれぞれで実行する）。
+
+```bash
+LANG=C xdg-user-dirs-gtk-update
+```
+
+確認ダイアログが表示されるので、`Don't ask me this again` にチェックを入れ、`Update Names` をクリックする。
+
+```bash
+# Desktop, Documents, Downloads などに変わっていることを確認
+ls ~
+```
+
+### 5-6. ネットワーク設定の確認（DHCP）
+
+ネットワーク接続には DHCP を使用する。インストール時に自動設定されているため、通常は追加設定不要である。以下の手順で設定を確認する。
+
+1. デスクトップ右上のシステムメニュー →「設定」→「ネットワーク」を開く
+2. 設定対象の接続の歯車アイコンをクリックする
+3. 「IPv4設定」タブを開き、「IPv4メソッド」が **「自動(DHCP)」** になっていることを確認する
+
+```bash
+# 現在取得しているIPアドレスをコマンドで確認する
+ip a
+```
+
+### 5-7. ファイアウォールの設定（ufw）
+
+```bash
+# SSH接続を許可（リモート接続している場合は先に実行）
+sudo ufw allow ssh
+```
+
+> ⚠️ SSHでリモート接続中の場合、`sudo ufw allow ssh` を**先に**実行してからファイアウォールを有効化すること。順序を守らないと接続が切断される。ファイアウォールの有効化は [5-14. OpenSSH サーバの設定](#5-14-openssh-サーバの設定) で行う。
+
+### 5-8. 日時設定（NTP）
+
+```bash
+# 現在の日時確認
+date
+timedatectl
+
+# NTPによる自動同期を有効化
+sudo timedatectl set-ntp true
+
+# NICTのNTPサーバーを指定（日本国内推奨）
+echo -e "[Time]\nNTP=ntp.nict.jp" | sudo tee /etc/systemd/timesyncd.conf
+
+# 設定を反映
+sudo systemctl restart systemd-timesyncd
+
+# 同期状態を確認
+timedatectl timesync-status
+```
+
+> 学内ネットワークで NICT のサーバーと同期できない場合は、`ntp.nict.jp` の代わりに大学の NTP サーバー `ntp.kansai-u.ac.jp` を指定する。
+
+### 5-9. 日本語入力の設定
+
+iBus と Mozc を使用する。パッケージのインストールは管理アカウント `hpc` で行う。
+
+```bash
+# iBusとMozcをインストール
+sudo apt update
+sudo apt install ibus-mozc
+
+# iBusを再起動
+ibus restart
+```
+
+入力ソースの追加はユーザーごとに行う:
+
+1. 「設定」→「キーボード」を開く
+2. 「入力ソース」の「+」ボタンをクリック
+3. 「日本語」→「日本語(Mozc)」を追加する
+4. **Super+スペース** キーで入力ソースを切り替える
+
+> 設定後は一度ログアウト・ログインすると確実に反映される。
+
+### 5-10. NVIDIAグラフィックドライバの設定
+
+nouveau（オープンソース版ドライバ）を無効化する。
+
+```bash
+sudo bash -c "echo 'blacklist nouveau' > /etc/modprobe.d/blacklist-nouveau.conf"
+sudo bash -c "echo 'options nouveau modeset=0' >> /etc/modprobe.d/blacklist-nouveau.conf"
+sudo update-initramfs -u
+sudo reboot
+```
+
+再起動後、NVIDIA ドライバをインストールする。
+
+```bash
+# 利用可能なNVIDIAドライバを確認
+sudo ubuntu-drivers list
+
+# 推奨ドライバを自動インストール
+sudo ubuntu-drivers install
+
+# または特定バージョンを指定
+# sudo ubuntu-drivers install nvidia:535
+
+# 再起動
+sudo reboot
+
+# インストール確認
+nvidia-smi
+```
+
+`nvidia-smi` コマンドを実行して、ドライバのバージョンと GPU の情報が表示されれば完了である。
+
+### 5-11. Docker のインストール
+
+[docker_install.sh](docker_install.sh) をダウンロードして実行する。NVIDIA Container Toolkit を含むため、[5-10. NVIDIAグラフィックドライバの設定](#5-10-nvidiaグラフィックドライバの設定) を済ませてから行う。
+
+```bash
+wget https://raw.githubusercontent.com/meruemon/Ubuntu-Setup/main/docker_install.sh
+bash docker_install.sh
+```
+
+スクリプトが行う内容は以下のとおりである。
+
+| 内容 | 説明 |
+|------|------|
+| Docker Engine のインストール | [公式手順](https://docs.docker.com/engine/install/ubuntu/)に従い、Docker 公式リポジトリから `docker-ce` などをインストール |
+| Docker Compose のインストール | `docker-compose-plugin`（V2）。コマンドは `docker compose`（スペース区切り）で、旧来の `docker-compose` は使用しない |
+| プロキシ設定 | Docker デーモンがイメージを取得する際に学内プロキシを経由する設定（`/etc/systemd/system/docker.service.d/http-proxy.conf`） |
+| DNS 設定 | コンテナが使用する DNS サーバーの設定（`/etc/systemd/system/docker.service.d/dns.conf`） |
+| NVIDIA Container Toolkit のインストール | コンテナから GPU を使用可能にする |
+
+> - スクリプト冒頭の `DNS3`（既定値 `192.168.100.1`）は研究室ルータの IP アドレスである。ネットワーク環境が異なる場合は実行前に書き換える
+> - スクリプトは学内プロキシの使用を前提としている。プロキシを経由しない環境では、実行前にプロキシ設定と DNS 設定の部分を削除する
+
+#### 動作確認
+
+```bash
+# バージョン確認
+docker --version
+docker compose version
+
+# Hello World コンテナで動作確認（"Hello from Docker!" と表示されれば成功）
+sudo docker run --rm hello-world
+
+# コンテナから GPU が見えるか確認（nvidia-smi の結果が表示されれば成功）
+sudo docker run --rm --gpus all nvcr.io/nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04 nvidia-smi
+```
+
+#### 個人ユーザーを docker グループに追加する
+
+個人ユーザーは `sudo` を使えないため、`docker` グループに追加して `sudo` なしで `docker` コマンドを実行できるようにする。
+
+```bash
+# 管理アカウント hpc で実行（例: yoshida）
+sudo gpasswd -a yoshida docker
+
+# docker グループが含まれていることを確認
+id yoshida
+# uid=1001(yoshida) gid=1001(yoshida) groups=1001(yoshida),988(docker)
+```
+
+グループの変更は、対象ユーザーが**次回ログインした時点**から有効になる。個人ユーザーでログインし直し、`sudo` なしで実行できることを確認する。
+
+```bash
+# 個人ユーザーで実行
+docker run --rm hello-world
+```
+
+Docker の使い方と PyTorch 開発環境の構築は [Docker 環境リファレンス](python_env/docker-pytorch/README.md) を参照する。
+
+### 5-12. SSD向け推奨設定
+
+#### TRIM の有効化
+
+```bash
+# 現在の状態を確認
+sudo systemctl status fstrim.timer
+
+# 有効化
+sudo systemctl enable fstrim.timer
+sudo systemctl start fstrim.timer
+
+# 手動実行
+sudo fstrim -av
+```
+
+#### noatime オプションの追加
+
+```bash
+sudo nano /etc/fstab
+```
+
+変更前:
+```
+UUID=xxxx  /  ext4  errors=remount-ro  0  1
+```
+
+変更後:
+```
+UUID=xxxx  /  ext4  noatime,errors=remount-ro  0  1
+```
+
+> ⚠️ 変更後は再起動が必要。設定を誤るとシステムが起動しなくなる可能性があるため、編集前にバックアップを取ること。
+
+#### スワップ使用頻度の調整
+
+```bash
+# 現在値の確認（デフォルトは60）
+cat /proc/sys/vm/swappiness
+
+# 値を10に設定（SSDへの書き込みを削減）
+echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+```
+
+### 5-13. ソフトウェアのインストール
+
+> ソフトウェアのインストールは管理アカウント **`hpc`** で行う。個人ユーザーは `sudo` 権限を持たないため、`apt install` 等の操作は実行できない。
+
+#### よく使うソフトウェアの一括インストール（software_install.sh）
+
+研究室でよく使うソフトウェアは [software_install.sh](software_install.sh) でまとめてインストールできる。
+
+```bash
+wget https://raw.githubusercontent.com/meruemon/Ubuntu-Setup/main/software_install.sh
+bash software_install.sh
+```
+
+| ソフトウェア | 説明 | インストール方法 |
+|-------------|------|-----------------|
+| Google Chrome | ウェブブラウザ | Google 公式 apt リポジトリ |
+| Visual Studio Code | Microsoft 製の高機能テキストエディタ（Visual Studio とは別物） | Microsoft 公式 apt リポジトリ |
+| LibreOffice | Word・Excel などに代わるオープンソースのオフィスソフト | apt |
+| htop | CPU・メモリ使用率、プロセスなどを端末に表示する（`q` で終了） | apt |
+| TeamViewer | リモートデスクトップ | 公式 deb パッケージ |
+| Slack | チャットツール | snap |
+
+#### GUI（App Center）
+
+1. デスクトップ左下のアプリアイコン →「App Center」を起動
+2. 検索バーでアプリケーションを検索し、「インストール」をクリック
+
+#### CUI（apt コマンド）
+
+```bash
+# パッケージリストを更新
+sudo apt update
+
+# パッケージをインストール
+sudo apt install <パッケージ名>
+
+# 例: GIMPをインストール
+sudo apt install gimp
+
+# パッケージ名を検索
+apt search <キーワード>
+```
+
+### 5-14. OpenSSH サーバの設定
+
+```bash
+# インストール
+sudo apt update
+sudo apt install openssh-server
+
+# サービスの起動と自動起動設定
+sudo systemctl start ssh
+sudo systemctl enable ssh
+
+# 状態確認
+sudo systemctl status ssh
+
+# ファイアウォール設定
+sudo ufw allow ssh
+sudo ufw enable
+sudo ufw status
+```
+
+接続テスト:
+
+```bash
+# サーバー側でIPアドレスを確認
+ip a
+
+# クライアントから接続
+ssh ユーザー名@サーバーのIPアドレス
+```
+
+主なセキュリティ設定（`/etc/ssh/sshd_config`）:
+
+| 項目 | 推奨値 | 説明 |
+|------|--------|------|
+| `PermitRootLogin` | `no` | rootの直接ログインを禁止 |
+| `PasswordAuthentication` | `yes` | パスワード認証（鍵認証のみにする場合は `no`） |
+| `Port` | `22`（任意） | SSHポート番号 |
+
+```bash
+# 設定変更後はSSHサービスを再起動
+sudo systemctl restart ssh
+```
+
+---
+
+## 6. トラブルシューティング
+
+### インストール用USBが起動しない
+
+1. 起動時にメーカーロゴ画面で **F2 / F10 / F12 / Del / Esc** を連打してブートメニューを表示
+2. USBデバイスを選択してEnterキーを押す
+3. 解決しない場合:
+   - 別のUSBポート（USB 2.0）を試す
+   - USBメモリを作成し直す
+   - BIOS/UEFI設定でセキュアブートを一時的に無効化する
+
+### インストールが途中で止まる
+
+- 数分待っても進まない場合は、USBメモリの不良やハードウェア問題が考えられる
+- USBメモリを作成し直すか、別のUSBポートを試す
+
+### `apt update` や `wget` がタイムアウトする
+
+学内ネットワークではプロキシ設定が必要である。
+
+```bash
+# プロキシの環境変数が設定されているか確認（何も表示されなければ未設定）
+env | grep -i proxy
+
+# apt のプロキシ設定を確認
+cat /etc/apt/apt.conf.d/30proxy
+```
+
+未設定の場合は [5-1. プロキシ設定](#5-1-プロキシ設定) を行う。逆に、プロキシを設定した計算機を学外に持ち出した場合は、設定を無効化しないと接続できない。
+
+### `docker` コマンドで `permission denied` と表示される
+
+```
+permission denied while trying to connect to the Docker daemon socket
+```
+
+ユーザーが `docker` グループに属していない。管理アカウント `hpc` で [docker グループへの追加](#個人ユーザーを-docker-グループに追加する) を行い、対象ユーザーでログインし直す。
+
+### トラブルを防ぐためのポイント
+
+- インストール・アップデート中に**強制電源オフをしない**
+
+---
+
+## 7. 次のステップ
+
+OS の初期設定が完了したら、個人ユーザーでログインして開発環境を構築する。
+
+| 目的 | ドキュメント |
+|------|-------------|
+| 開発環境の選び方（Docker / venv） | [Python 環境構築](python_env/INDEX.md) |
+| GPU を使う PyTorch 開発（Jupyter Notebook を含む） | [Docker 環境リファレンス](python_env/docker-pytorch/README.md) |
+| GPU を使わない Python コーディング | [venv 環境リファレンス](python_env/venv_README.md) |
+| 卒業論文の執筆 | [Overleaf を用いた卒論執筆](latex_guide.md) |
+
+---
+
+## 8. 付録
+
+### 8-1. よく使う Linux コマンド
+
+コマンドの表記について、`sudo` が先頭に付けられたコマンドは管理者権限が必要な操作を表す。
+
+| コマンド | 説明 | 例 |
+| ---- | ---- | ---- |
+| `cd` | ディレクトリを移動 | `cd ~/Documents` |
+| `ls` | ファイルやディレクトリの情報を表示 | `ls -a` |
+| `pwd` | カレントディレクトリのフルパスを出力 | `pwd` |
+| `cp` | ファイル・ディレクトリのコピー | `cp -r コピー元 コピー先` |
+| `mv` | ファイル・ディレクトリの移動 | `mv 移動元 移動先` |
+| `mkdir` | ディレクトリの作成 | `mkdir tmp` |
+| `touch` | タイムスタンプの変更・ファイルの新規作成 | `touch test.txt` |
+| `sudo` | スーパーユーザの権限でコマンドを実行 | `sudo visudo` |
+| `chmod` | ファイルの権限を変更（r:読込，w:書込，x:実行） | `chmod +x test.py` |
+| `chown` | ファイルの所有者・グループを変更 | `chown user:user test` |
+
+`apt` コマンドの概要:
+
+| コマンド | 内容 |
 | ---- | ---- |
-| `i, a, o` |  入力（インサート）モードに切り替え（順に、カーソルの左側，カーソルの右側，次の行から文字入力） |
-| `Esc`  | コマンドモードに切り替え  |
+| `apt install [package]` | パッケージのインストール/更新 |
+| `apt update` | パッケージリストの更新 |
+| `apt upgrade` | インストールされているパッケージの更新 |
+| `apt full-upgrade` | 依存関係の変更（パッケージの追加・削除）を伴う更新も含めて更新 |
+| `apt autoremove` | 不要になったパッケージの削除 |
+
+### 8-2. vi の基本操作
+
+端末から設定ファイルを編集する際は `vi`（または `nano`）を使用する。必要最低限の `vi` の[操作方法](https://eng-entrance.com/linux-command-vi)を以下に示す。
+
+| コマンド | 説明 |
+| ---- | ---- |
+| `i, a, o` | 入力（インサート）モードに切り替え（順に、カーソルの左側，カーソルの右側，次の行から文字入力） |
+| `Esc` | コマンドモードに切り替え |
 | `h, l, j, k` | コマンドモード中に左右下上にカーソル移動（矢印キーも使用可） |
-| `x` | コマンドモード時に１文字を削除 |
+| `x` | コマンドモード時に1文字を削除 |
 | `dd` | コマンドモード時に1行を削除 |
 | `Esc`+`:w` | 保存 |
 | `Esc`+`:q` | 閉じる |
@@ -31,589 +803,21 @@ OSインストール時にも，『最小インストール』を選択する.
 | `p` | コピーした文字列をペースト |
 | `u` | 一つ前に戻る |
 
-あわせて，端末で[よく使うLinuxコマンド](https://www.google.com/search?q=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&sxsrf=ALeKk01adUXnJjdo8eDpMdjWbD_nk4tVbQ%3A1627643043700&ei=o9wDYeuhKqeQr7wPsvWq4A0&oq=%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86Linux%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89&gs_lcp=Cgdnd3Mtd2l6EAMyCwgAEIAEEAQQJRAgSgQIQRgAUNMgWNMgYJsiaABwAngAgAGnAogBggOSAQUxLjAuMZgBAKABAqABAcABAQ&sclient=gws-wiz&ved=0ahUKEwir_8Lr0oryAhUnyIsBHbK6CtwQ4dUDCA8&uact=5)を調べる．
+---
 
-| コマンド|  説明  | 例 |
-| ---- | ---- | ---- |
-| `cd` | ディレクトリを移動 | `cd ~/Documents` |
-| `ls` | ファイルやディレクトリの情報を表示 | `ls -a` |
-| `pwd` | カレントディレクトリのフルパスを出力 | `pwd` |
-| `cp` | ファイル・ディレクトリのコピー | `cp -r コピー元 コピー先` | 
-| `mv` | ファイル・ディレクトリの移動 | `mv 移動元 移動先` | 
-| `mkdir` | ディレクトリの作成 | `mkdir tmp` | 
-| `touch` | タイムスタンプの変更・ファイルの新規作成 | `touch test.txt` |
-| `sudo` | スーパーユーザの権限でコマンドを実行 | `sudo visudo` |
-| `chmod` | ファイルの権限を変更（r:読込，w:書込，x:実行） | `chmod +x test.py` | 
-| `chown` | ファイルの所有者・グループを変更 | `chown user:user test` | 
+## コミュニティとサポート
 
-日本語Remixをインストールすると初期状態から日本語入力機能がインストールされている．半角・全角を押しても切り替わらない場合は，画面右上の『Ja』をクリックして，IMEを『日本語（Mozc）』に設定する．
+- Ubuntu 日本語フォーラム: https://forums.ubuntulinux.jp/
+- Ask Ubuntu（英語）: https://askubuntu.com/
+- Ubuntu Discourse（英語）: https://discourse.ubuntu.com/
 
-## ■ Proxy設定
+### 参考リンク
 
-大学からのインターネット接続は全て，Proxyサーバを経由して管理されている.
-内部LAN（研究室）からインターネットに接続するために，その宛先であるProxyサーバ情報を登録する.
-大学以外の環境（あるいはProxyサーバを経由しない一部の部屋）では，本設定は必要ない．
+| リソース | URL |
+|---------|-----|
+| Ubuntu 公式（日本語） | https://jp.ubuntu.com/ |
+| Ubuntu 24.04 公式リリースページ | https://releases.ubuntu.com/noble/ |
+| Ubuntu 認定ハードウェア | https://ubuntu.com/certified |
+| Unix/Linux コマンドリファレンス | https://files.fosswire.com/2007/08/fwunixref.pdf |
 
-### 個別ユーザごとに行う全般の設定
-
-`vi`コマンドで`.bashrc`を開き，末尾に以下を追記する.
-
-```
-$ vi ~/.bashrc
-export https_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
-export http_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
-export ftp_proxy="http://proxy.itc.kansai-u.ac.jp:8080/"
-```
-
-`wget`コマンドで動作確認を行う.`index.html`にトップページのhtmlが保存される（スクレイピング）．
-
-```
-$ wget https://www.yahoo.co.jp | more
-```
-
-```
-$ vi ~/.curlrc
-proxy=http://proxy.itc.kansai-u.ac.jp:8080/
-```
-
-`sudo`コマンド実行時，個別ユーザごとの設定を引き継ぐ設定を行う．`visudo`コマンドは入力すると，`nano`エディタが立ち上がる．
-`Ctrl+o`で保存，`Ctrl+x`で閉じる．
-
-```
-$ sudo visudo
-#Defaults env_reset
-Defaults env_keep="no_proxy NO_PROXY"
-Defaults env_keep+="http_proxy https_proxy ftp_proxy"
-Defaults env_keep+="HTTP_PROXY HTTPS_PROXY FTP_PROXY"
-```
-
-
-最後に，ウェブブラウザからインターネット接続するためには，設定->ネットワーク->ネットワークプロキシ->手動を順に開き，`HTTPプロキシ`，`HTTPSプロキシ`，`FTPプロキシ`にURL`proxy.itc.kansai-u.ac.jp`とポート番号`8080`をそれぞれ入力する．
-
-### apt-getの設定
-
-`sudo`を付けて，`vi`コマンドで`/etc/apt/apt.conf.d/30proxy`を開き以下を追記する.
-
-```
-$ sudo vi /etc/apt/apt.conf.d/30proxy
-[sudo] user のパスワード: <- パスワードを入力
-
-Acquire::http { Proxy "http://proxy.itc.kansai-u.ac.jp:8080/"; };
-Acquire::https { Proxy "http://proxy.itc.kansai-u.ac.jp:8080/"; };
-```
-
-`apt-get`コマンドで動作確認を行う.
-
-```
-$ sudo apt-get update
-```
-
-### snapの設定
-
-[sanp](https://gihyo.jp/admin/serial/01/ubuntu-recipe/0654)コマンドは[Pycharm](https://www.jetbrains.com/ja-jp/pycharm/)をコマンドラインからインストールする際に利用する．
-
-`sudo`を付けて，`mkdir`コマンドでディレクトリ`/etc/systemd/system/snapd.service.d`を作成する.
-
-```
-$ sudo mkdir /etc/systemd/system/snapd.service.d
-```
-
-ファイル`http-proxy.conf`を作成し，`echo`コマンドを用いてプロキシ情報を追加する．
-
-```
-$ echo '[Service]' | sudo tee -a /etc/systemd/system/snapd.service.d/http-proxy.conf
-$ echo 'Environment="HTTP_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo tee -a /etc/systemd/system/snapd.service.d/http-proxy.conf
-$ echo 'Environment="HTTPS_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo tee -a /etc/systemd/system/snapd.service.d/http-proxy.conf
-```
-
-最後に，snapの設定をリロードする.
-
-```
-$ sudo systemctl daemon-reload
-$ sudo systemctl restart snapd
-```
-
-## ■ 初期設定
-
-### ホームディレクトリの英語化
-
-ファイル名やディレクトリ（フォルダ）名が日本語であると不都合な場面が多いため，英語に変換する.
-
-```
-$ LANG=C xdg-user-dirs-gtk-update
-Moving DESKTOP directory from デスクトップ to Desktop
-Moving DOWNLOAD directory from ダウンロード to Downloads
-Moving TEMPLATES directory from テンプレート to Templates
-Moving PUBLICSHARE directory from 公開 to Public
-Moving DOCUMENTS directory from ドキュメント to Documents
-Moving MUSIC directory from ミュージック to Music
-Moving PICTURES directory from ピクチャ to Pictures
-Moving VIDEOS directory from ビデオ to Videos
-```
-
-`Don't ask me this again`にチェックを入れ，`Update Names`をクリックする．
-
-### (Optional) 時刻設定
-
-大学のNTPサーバを利用して，正確な時刻を取得する．
-
-```
-$ sudo vi /etc/systemd/timesyncd.conf
-
-NTP=ntp.kansai-u.ac.jp
-
-$ sudo systemctl restart systemd-timesyncd.service
-$ sudo systemctl -l status systemd-timesyncd
- systemd-timesyncd.service - Network Time Synchronization
-     Loaded: loaded (/lib/systemd/system/systemd-timesyncd.service; enabled; vendor preset: enabled)
-     Active: active (running) since Sat 2021-07-31 12:33:14 JST; 6s ago
-       Docs: man:systemd-timesyncd.service(8)
-   Main PID: 4441 (systemd-timesyn)
-     Status: "Initial synchronization to time server 158.217.208.10:123 (ntp.kansai-u.ac.jp)."
-      Tasks: 2 (limit: 38237)
-     Memory: 1.3M
-     CGroup: /system.slice/systemd-timesyncd.service
-             └─4441 /lib/systemd/systemd-timesyncd
-```
-
-`Active: active (running)`となっていることを確認する．
-
-## ■ システム更新
-
-```
-$ sudo apt update && sudo apt upgrade
-...
-続行しますか? [Y/n] y <- yを入力してエンターを押す
-```
-
-[apt-getコマンド](https://webkaru.net/linux/apt-get-command/)は，Debian系のディストリビューション（DebianやUbuntu）のパッケージ管理システムであるAPT（Advanced Package Tool）ライブラリを利用してパッケージを操作・管理するコマンドです.
-
-以下に，`apt-get`コマンドの概要を示す.`apt-get`は`apt`と省略可能．
-
-| コマンド|  内容  |
-| ---- | ---- |
-| `apt-get install [package]` |  パッケージのインストール/更新  |
-| `apt-get update`  | パッケージリストの更新  |
-| `apt-get upgrade` | インストールされてるパッケージの更新 |
-| `apt-get dist-upgrade` | インストールされてるカーネルの更新（*原則，このコマンドは使用しない*） |
-
-`update`はパッケージリストが更新されるだけであり，最新のリストを参照して`upgrade`を用いてパッケージの更新を行う.
-
-## ■ NVIDIA Driver のインストール
-
-### PPA の追加
-
-プロキシの環境変数を引き継ぐため，`-E`オプションを付けて，`add-apt-repository`コマンドを実行する．
-
-```
-$ sudo -E add-apt-repository ppa:graphics-drivers/ppa
-...
-[ENTER] を押すと続行します。Ctrl-c で追加をキャンセルできます。 <- エンター押す
-$ sudo apt update
-```
-
-### 推奨ドライバの確認
-
-```
-$ ubuntu-drivers devices
-WARNING:root:_pkg_get_support nvidia-driver-390: package has invalid Support Legacyheader, cannot determine support level
-== /sys/devices/pci0000:00/0000:00:01.0/0000:01:00.0 ==
-modalias : pci:v000010DEd00001CB2sv000010DEsd000011BDbc03sc00i00
-vendor   : NVIDIA Corporation
-model    : GP107GL [Quadro P600] <- 計算機のGPU名が表示
-driver   : nvidia-driver-450-server - distro non-free
-driver   : nvidia-driver-390 - distro non-free
-driver   : nvidia-driver-460-server - distro non-free
-driver   : nvidia-driver-470 - distro non-free recommended <- 推薦
-driver   : nvidia-driver-418-server - distro non-free
-driver   : nvidia-driver-460 - distro non-free
-driver   : xserver-xorg-video-nouveau - distro free builtin
-```
-
-### ドライバのインストール
-
-上記操作で`recommended`と表示されたバージョンのドライバをインストールする.
-
-```
-$ sudo apt install nvidia-driver-470
-...
-続行しますか? [Y/n] y <- yを入力してエンターを押す
-```
-
-ここでは，`autoinstall`を使用しても良いが，インストールしたバージョンを意識するために指定する.
-
-インストールした内容を反映させるため，再起動を行う．
-
-```
-sudo reboot
-```
-
-再起動後，`nvidia-smi`コマンドを実行してGPUの情報が表示されれば完了.
-
-```
-$ nvidia-smi
-Sat Jul 31 12:51:47 2021       
-+-----------------------------------------------------------------------------+
-| NVIDIA-SMI 470.57.02    Driver Version: 470.57.02    CUDA Version: 11.4     |
-|-------------------------------+----------------------+----------------------+
-| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
-|                               |                      |               MIG M. |
-|===============================+======================+======================|
-|   0  Quadro P600         Off  | 00000000:01:00.0  On |                  N/A |
-| 34%   43C    P5    N/A /  N/A |    184MiB /  1998MiB |      3%      Default |
-|                               |                      |                  N/A |
-+-------------------------------+----------------------+----------------------+
-                                                                               
-+-----------------------------------------------------------------------------+
-| Processes:                                                                  |
-|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
-|        ID   ID                                                   Usage      |
-|=============================================================================|
-|    0   N/A  N/A       852      G   /usr/lib/xorg/Xorg                 39MiB |
-|    0   N/A  N/A      1394      G   /usr/lib/xorg/Xorg                 48MiB |
-|    0   N/A  N/A      1522      G   /usr/bin/gnome-shell               88MiB |
-+-----------------------------------------------------------------------------+
-```
-
-## ■ Dockerのインストール
-
-[公式マニュアル](https://docs.docker.com/engine/install/ubuntu/)に従って，インストールする.
-
-### 依存パッケージのインストール
-
-```
-$ sudo apt-get update
-$ sudo apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
-...
-続行しますか? [Y/n] y <- yを入力してエンターを押す
-```
-
-### GPG keyの登録とパッケージリストへの追加
-
-Dockerをパッケージリストに追加し，インストールできるようにする．まずは，GPG keyを追加する.
-
-```
-$  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-```
-
-次に，パッケージリストにDockerを追加する.
-
-```
-$ echo \
-  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-```
-
-### インストールと検証
-
-追加したパッケージリストを基に，Dockerをインストールする.
-
-```
-$ sudo apt-get update
-$ sudo apt-get install docker-ce docker-ce-cli containerd.io
-```
-
-### Proxy設定 for Docker
-
-`sudo`を付けて，`mkdir`コマンドでディレクトリ`/etc/systemd/system/docker.service.d`を作成する.
-
-```
-$ sudo mkdir /etc/systemd/system/docker.service.d
-```
-
-ファイル`http-proxy.conf`を作成し，`echo`コマンドを用いてプロキシ情報を追加する．
-
-```
-$ echo '[Service]' | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
-$ echo 'Environment="HTTP_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
-$ echo 'Environment="HTTPS_PROXY=http://proxy.itc.kansai-u.ac.jp:8080/"' | sudo tee -a /etc/systemd/system/docker.service.d/http-proxy.conf
-```
-
-ファイル`dns.conf`を作成し，`echo`コマンドを用いてDNS情報を追加する．`192.168.100.1`は研究室ルータのIPアドレスを指す．
-
-```
-$ echo '[Service]' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
-$ echo 'Environment="DOCKER_NETWORK_OPTIONS=--dns 158.217.208.10 --dns 158.217.6.7 --dns 192.168.100.1"' | sudo tee -a /etc/systemd/system/Tdocker.service.d/dns.conf
-$ echo 'ExecStart=' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
-$ echo 'ExecStart=/usr/bin/dockerd -H fd:// $DOCKER_NETWORK_OPTIONS' | sudo tee -a /etc/systemd/system/docker.service.d/dns.conf
-```
-
-`sudo`を付けて，`vi`コマンドでディレクトリ`/etc/default/docker`にプロキシ情報を追加する.
-
-```
-$ sudo vi /etc/default/docker
-export http_proxy=http://proxy.itc.kansai-u.ac.jp:8080/
-export https_proxy=http://proxy.itc.kansai-u.ac.jp:8080/
-```
-
-```
-$ sudo systemctl daemon-reload
-$ sudo systemctl restart docker
-```
-
-
-最後に，Dockerの動作検証を行う.
-
-```
-$ sudo docker run hello-world
-Unable to find image 'hello-world:latest' locally
-latest: Pulling from library/hello-world
-b8dfde127a29: Pull complete 
-Digest: sha256:df5f5184104426b65967e016ff2ac0bfcd44ad7899ca3bbcf8e44e4461491a9e
-Status: Downloaded newer image for hello-world:latest
-
-Hello from Docker!
-This message shows that your installation appears to be working correctly.
-
-To generate this message, Docker took the following steps:
- 1. The Docker client contacted the Docker daemon.
- 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
-    (amd64)
- 3. The Docker daemon created a new container from that image which runs the
-    executable that produces the output you are currently reading.
- 4. The Docker daemon streamed that output to the Docker client, which sent it
-    to your terminal.
-
-To try something more ambitious, you can run an Ubuntu container with:
- $ docker run -it ubuntu bash
-
-Share images, automate workflows, and more with a free Docker ID:
- https://hub.docker.com/
-
-For more examples and ideas, visit:
- https://docs.docker.com/get-started/
-```
-
-## ■ Nvidia Docker
-
-[NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker)をインストールして，Dockerの仮想環境でGPUを使用可能とする設定を行う.
-ここでも，[公式マニュアル](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)に従って，インストールする.
-
-`Setting up NVIDIA Container Toolkit`から開始する．まずは，パッケージリストに該当パッケージを追加する．
-
-```
-$ distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
-   && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
-   && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
-```
-
-次に，パッケージリスト更新し，`nvidia-docker2`をインストールする．
-
-```sh
-$ sudo apt-get update
-$ sudo apt-get install nvidia-docker2
-```
-
-最後に，Dockerを再起動して，動作検証を行う．`nvidia-smi`コマンドの実行結果（GPU情報）が表示されたら成功．
-
-```sh
-$ sudo systemctl restart docker
-$ sudo docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
-Unable to find image 'nvidia/cuda:11.0-base' locally
-11.0-base: Pulling from nvidia/cuda
-54ee1f796a1e: Pull complete 
-f7bfea53ad12: Pull complete 
-46d371e02073: Pull complete 
-b66c17bbf772: Pull complete 
-3642f1a6dfb3: Pull complete 
-e5ce55b8b4b9: Pull complete 
-155bc0332b0a: Pull complete 
-Digest: sha256:774ca3d612de15213102c2dbbba55df44dc5cf9870ca2be6c6e9c627fa63d67a
-Status: Downloaded newer image for nvidia/cuda:11.0-base
-Sat Jul 31 04:00:53 2021       
-+-----------------------------------------------------------------------------+
-| NVIDIA-SMI 470.57.02    Driver Version: 470.57.02    CUDA Version: 11.4     |
-|-------------------------------+----------------------+----------------------+
-| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
-|                               |                      |               MIG M. |
-|===============================+======================+======================|
-|   0  Quadro P600         Off  | 00000000:01:00.0  On |                  N/A |
-| 34%   46C    P0    N/A /  N/A |    345MiB /  1998MiB |      0%      Default |
-|                               |                      |                  N/A |
-+-------------------------------+----------------------+----------------------+
-                                                                               
-+-----------------------------------------------------------------------------+
-| Processes:                                                                  |
-|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
-|        ID   ID                                                   Usage      |
-|=============================================================================|
-+-----------------------------------------------------------------------------+
-```
-
-## ■ Docker Compose
-
-[ここから](https://github.com/docker/compose/releases)最新のバージョンを確認する．以下は，バージョン`1.29.2`の例である．
-
-```
-$ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-```
-
-実行ファイルが`/usr/local/bin/docker-compose`に保存されるため，実行権限を与える．
-
-```
-$ sudo chmod +x /usr/local/bin/docker-compose
-```
-
-動作確認を行う．
-
-```
-$ docker-compose --version
-docker-compose version 1.29.2, build 5becea4c
-```
-
-## ■ よく使うソフトウェアのインストール
-
-### Pycharm
-
-Python用の統合環境（IDE）．二つのバージョンCommunity（無料）とProfessional（有料）がある．学生は，Academicライセンスを用いるとJetBrain製品を全て無料で利用できるため，[ここから](https://www.jetbrains.com/ja-jp/community/education/#students)申請することをお勧めする．申請の際は，大学のメールアドレス`***@kansai-u.ac.jp`を使用する．Professional版はリモートアクセスに関わる機能が追加されているため，サーバを利用する機会が多い場合はこちらが便利である．
-
-`sudo`を付け，`snap`コマンドでProfessional版`pycharm-professional`をインストールする．
-
-```
-$ sudo snap install pycharm-professional --classic
-```
-
-Community版`pycharm-community`も同様の方法でインストールできる．
-
-```
-$ sudo snap install pycharm-community --classic
-```
-
-### Vim
-
-`vi`の改良版．エディタのデファクトスタンダードの一つ．
-
-```
-$ sudo apt install vim
-```
-
-### VScode
-
-MS製の高機能GUIテキストエディタ．Visual Studioではない．
-[ここから](https://code.visualstudio.com/download)`.deb`をダウンロードする．ファイルは`Downloads`に保存されるため，
-端末でディレクトリを移動して，インストールを行う．
-
-```
-$ cd Downloads/
-$ ls
-code_1.58.2-1626302803_amd64.deb
-$ sudo dpkg -i code_1.58.2-1626302803_amd64.deb
-```
-
-### LibreOffice
-
-Word，Excelなどに代わるオープンソースオフィス．
-
-```
-& sudo -E add-apt-repository -n ppa:libreoffice/ppa
-& sudo apt-get update 
-& sudo apt install libreoffice
-```
-
-日本語化
-
-```
-$ sudo apt install libreoffice-l10n-ja libreoffice-help-ja 
-```
-
-### Google Chrome
-
-```
-$ sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-$ wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-$ sudo apt update
-$ sudo apt install google-chrome-stable
-```
-
-### VLC
-
-マルチメディアプレイヤー
-
-```
-$ sudo apt install vlc 
-```
-
-### htop
-
-CPU・メモリ使用率，プロセスなどを端末で表示する．
-
-```
-$ sudo apt install htop
-```
-
-動作確認．`q`を入力すると閉じる．
-
-```
-$ htop
-```
-
-## ■ ユーザの追加
-
-以上までの作業は，OSインストール時に作成したユーザ（管理者）で行ってきたが，プログラミングや実験は，専用ユーザを作成して行う．
-
-`adduser`コマンドでユーザを作成する．任意のユーザ名を入力し，指示に従ってパスワードを入力する.
-それ以外は，未入力のままEnterを押してよい．
-
-```
-$ sudo adduser 【ユーザ名】
-ユーザー `student' を追加しています... <- 【ユーザ名】にstudentを入力した例
-新しいグループ `student' (1001) を追加しています...
-新しいユーザー `student' (1001) をグループ `student' に追加しています...
-ホームディレクトリ `/home/student' を作成しています...
-`/etc/skel' からファイルをコピーしています...
-新しいパスワード: <- 任意のパスワードを入力（表示されない．誤入力した場合は，複数回BackSpaceを押し，最初から打ち直す）
-新しいパスワードを再入力してください: 
-passwd: パスワードは正しく更新されました
-student のユーザ情報を変更中
-新しい値を入力してください。標準設定値を使うならリターンを押してください
-	フルネーム []: <- 以降，何も入力しないでエンターを押す
-	部屋番号 []: 
-	職場電話番号 []: 
-	自宅電話番号 []: 
-	その他 []: 
-以上で正しいですか? [Y/n] y <- yを入力してエンターを押す
-```
-
-`gpasswd`コマンドで，作成したユーザを`docker`グループに追加する．
-
-```
-$ sudo gpasswd -a 【ユーザ名】 docker
-```
-
-コマンドラインからユーザを切り替えて，動作確認を行う．
-
-```
-$ su - 【ユーザ名】
-パスワード:
-```
-
-新規作成したユーザで`docker`コマンドを使用できるか確認する．
-
-```
-$ docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi
-Sat Jul 31 04:06:35 2021       
-+-----------------------------------------------------------------------------+
-| NVIDIA-SMI 470.57.02    Driver Version: 470.57.02    CUDA Version: 11.4     |
-|-------------------------------+----------------------+----------------------+
-| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
-| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
-|                               |                      |               MIG M. |
-|===============================+======================+======================|
-|   0  Quadro P600         Off  | 00000000:01:00.0  On |                  N/A |
-| 34%   40C    P0    N/A /  N/A |    316MiB /  1998MiB |      0%      Default |
-|                               |                      |                  N/A |
-+-------------------------------+----------------------+----------------------+
-                                                                               
-+-----------------------------------------------------------------------------+
-| Processes:                                                                  |
-|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
-|        ID   ID                                                   Usage      |
-|=============================================================================|
-+-----------------------------------------------------------------------------+
-```
-
-再起動し，作成したユーザでログインする．そこで，新たに，『Proxy設定->個別ユーザごとに行う全般の設定』と『初期設定->ホームディレクトリの英語化』を行う．
-
-なお，新規作成したユーザには管理者権限を与えないため，`sudo`コマンドを伴う操作はできない．
+---

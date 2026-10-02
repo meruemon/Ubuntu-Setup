@@ -1,11 +1,13 @@
 # PyTorch 1.x Docker 開発環境 (GPU対応)
 
-> このドキュメントは環境構築の手順だけでなく、Docker の基本概念・コマンド・Dockerfile の書き方・Docker Compose の使い方を網羅したリファレンスです。
+> このドキュメントは環境構築の手順だけでなく、Docker の基本概念・コマンド・Dockerfile の書き方・Docker Compose の使い方を網羅したリファレンスです。  
+> **取り急ぎ PyTorch の開発を始めたい場合は、最初の [クイックスタート](#クイックスタート) だけを実行してください。** 基礎の解説 (1〜7 章) は後から読んでも構いません。
 
 ---
 
 ## 目次
 
+0. [クイックスタート](#クイックスタート) ← まずはここから
 1. [Docker とは？](#1-docker-とは)
 2. [イメージとコンテナの概念](#2-イメージとコンテナの概念)
 3. [Docker のインストール確認](#3-docker-のインストール確認)
@@ -18,6 +20,172 @@
 10. [GPU 動作確認](#10-gpu-動作確認)
 11. [インストール済みライブラリ一覧](#11-インストール済みライブラリ一覧)
 12. [トラブルシューティング](#12-トラブルシューティング)
+
+---
+
+## クイックスタート
+
+Docker の仕組みを理解する前に、まずは環境を作って **Jupyter Notebook や Python スクリプトで PyTorch (GPU) の開発を始める** までの最短手順です。  
+コマンドを上から順にコピー & ペーストして実行してください。各コマンドの意味は後の章で解説します。
+
+### 前提条件
+
+以下は管理アカウント (`hpc`) による作業です。済んでいない場合は管理者に依頼してください。  
+→ [Ubuntu 24.04 インストールと初期設定ガイド](../../ubuntu_install.md)
+
+| 前提 | 確認コマンド (個人ユーザーで実行) | 期待される結果 |
+|---|---|---|
+| NVIDIA ドライバがインストール済み | `nvidia-smi` | GPU の情報が表示される |
+| Docker がインストール済み | `docker compose version` | バージョンが表示される |
+| 自分が `docker` グループに所属 | `docker run --rm hello-world` | `Hello from Docker!` と表示される |
+
+### Step 1: 作業フォルダを作り、ファイルをダウンロードする
+
+```bash
+# 作業フォルダと、コンテナとの共有フォルダ (workspace) を作成して移動
+mkdir -p ~/Programs/docker-pytorch/workspace
+cd ~/Programs/docker-pytorch
+
+# Dockerfile と docker-compose.yml をダウンロード
+wget https://raw.githubusercontent.com/meruemon/Ubuntu-Setup/main/python_env/docker-pytorch/Dockerfile
+wget https://raw.githubusercontent.com/meruemon/Ubuntu-Setup/main/python_env/docker-pytorch/docker-compose.yml
+```
+
+### Step 2: 自分のユーザ情報を Dockerfile に書き込む
+
+コンテナ内にホストと同じユーザを作るため、Dockerfile 内のユーザ名・UID・GID を自分のものに書き換えます。  
+以下のコマンドが自動で書き換えます (手作業で編集する場合は [8-5](#8-5-ユーザ情報の設定) を参照)。
+
+```bash
+sed -i \
+    -e "s/^ARG USERNAME=.*/ARG USERNAME=$(id -un)/" \
+    -e "s/^ARG USER_UID=.*/ARG USER_UID=$(id -u)/" \
+    -e "s/^ARG USER_GID=.*/ARG USER_GID=$(id -g)/" \
+    Dockerfile
+
+# 書き換わったことを確認 (自分のユーザ名と id コマンドの値が表示されれば OK)
+grep "^ARG" Dockerfile
+```
+
+### Step 3: プロキシを設定する (学内ネットワークのみ)
+
+学内ネットワークでは、イメージのビルド中やコンテナ内からのインターネット接続にもプロキシの設定が必要です。  
+**ユーザごとに1回だけ** 実行してください。大学以外の環境では不要です。
+
+```bash
+mkdir -p ~/.docker
+cat > ~/.docker/config.json << 'EOF'
+{
+  "proxies": {
+    "default": {
+      "httpProxy": "http://proxy.itc.kansai-u.ac.jp:8080/",
+      "httpsProxy": "http://proxy.itc.kansai-u.ac.jp:8080/",
+      "noProxy": "localhost,127.0.0.1"
+    }
+  }
+}
+EOF
+```
+
+> すでに `~/.docker/config.json` が存在する場合 (`docker login` を実行したことがある場合など) は上書きせず、  
+> テキストエディタで `"proxies"` の項目を追記してください。
+
+### Step 4: ビルドして起動する
+
+```bash
+# イメージをビルドして、コンテナをバックグラウンドで起動 (初回のみ 5〜15 分かかります)
+docker compose up -d --build
+
+# 起動を確認 (STATUS が Up になっていれば OK)
+docker compose ps
+```
+
+### Step 5: コンテナに入り、GPU が使えることを確認する
+
+```bash
+# コンテナに入る
+docker compose exec pytorch bash
+```
+
+プロンプトが `ユーザ名@コンテナID:/workspace$` に変わります。以降は **コンテナの中** での操作です。
+
+```bash
+# True と表示されれば、PyTorch から GPU が使えています
+python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+# 1.13.1+cu117 True
+```
+
+### Step 6: 開発する
+
+ホストの `~/Programs/docker-pytorch/workspace/` とコンテナ内の `/workspace` は **同じフォルダ** です。  
+ソースコード・ノートブック・データはここに置きます。コンテナを削除してもこのフォルダの中身は消えません。
+
+#### Jupyter Notebook を使う
+
+コンテナの中で Jupyter を起動します。
+
+```bash
+jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser
+```
+
+端末に表示される URL のうち、`http://127.0.0.1:8888/` で始まる行を **末尾の `token=...` まで** コピーし、ホストのウェブブラウザに貼り付けて開きます。  
+「New」→「Python 3 (ipykernel)」でノートブックを作成し、セルに以下を入力して `Shift + Enter` で実行できれば成功です。
+
+```python
+import torch
+
+x = torch.rand(3, 3).cuda()   # テンソルを GPU に乗せる
+print(x.device)               # cuda:0
+```
+
+- JupyterLab を使いたい場合は `jupyter lab --ip=0.0.0.0 --port=8888 --no-browser` を実行します
+- Jupyter を終了するには、端末で `Ctrl + C` を押します
+- 研究室の計算機に別の PC から SSH で接続している場合は、手元の PC で `ssh -L 8888:localhost:8888 ユーザ名@計算機のIPアドレス` と接続すると、手元のブラウザで同じ URL を開けます
+
+#### Python スクリプトを実行する
+
+ホスト側のテキストエディタ (VS Code など) で `workspace/` にファイルを作成し、コンテナの中で実行します。
+
+```bash
+# 例: ホスト側で作成した workspace/main.py をコンテナの中で実行
+python main.py
+```
+
+> VS Code を使う場合は、拡張機能 **Dev Containers** をインストールし、コマンドパレット (`Ctrl + Shift + P`) から  
+> 「Dev Containers: Attach to Running Container...」→ `pytorch1x-gpu` を選ぶと、コンテナの中を直接編集・実行できます。
+
+### Step 7: 終了と再開
+
+```bash
+# コンテナから出る (コンテナは起動したまま)
+exit            # または Ctrl + D
+
+# コンテナを停止する (以降はホスト側の ~/Programs/docker-pytorch で実行)
+docker compose stop
+```
+
+次回以降はビルド不要です。起動してコンテナに入るだけで作業を再開できます。
+
+```bash
+cd ~/Programs/docker-pytorch
+docker compose up -d
+docker compose exec pytorch bash
+```
+
+| やりたいこと | コマンド |
+|---|---|
+| コンテナを起動する | `docker compose up -d` |
+| コンテナに入る | `docker compose exec pytorch bash` |
+| コンテナから出る | `exit` または `Ctrl + D` |
+| コンテナを停止する | `docker compose stop` |
+| コンテナを削除する (`workspace/` は残る) | `docker compose down` |
+| Dockerfile を変更した後に作り直す | `docker compose up -d --build` |
+
+> **ライブラリを追加したい場合**  
+> コンテナの中で `pip install パッケージ名` を実行するとすぐに使えますが、コンテナを削除 (`docker compose down`) すると消えます。  
+> 継続して使うライブラリは Dockerfile の `pip install` の一覧に追記し、`docker compose up -d --build` で作り直してください。
+
+うまくいかない場合は [12. トラブルシューティング](#12-トラブルシューティング) を参照してください。
 
 ---
 
@@ -105,6 +273,16 @@ Dockerfile
 
 ## 3. Docker のインストール確認
 
+Docker 本体・Docker Compose・NVIDIA Container Toolkit のインストールは、管理アカウント (`hpc`) が [docker_install.sh](../../docker_install.sh) で行います。  
+個人ユーザーは `sudo` を使えないため、管理者に `docker` グループへ追加してもらう必要があります。  
+→ 手順: [Ubuntu 24.04 インストールと初期設定ガイド — Docker のインストール](../../ubuntu_install.md#5-11-docker-のインストール)
+
+```bash
+# 自分が docker グループに所属しているか確認 (groups に docker が含まれていれば OK)
+id
+# 例: uid=1001(yoshida) gid=1001(yoshida) groups=1001(yoshida),988(docker)
+```
+
 ```bash
 # Docker のバージョン確認
 docker --version
@@ -119,7 +297,35 @@ docker info
 
 # Hello World コンテナで動作確認
 docker run --rm hello-world
+
+# コンテナから GPU が見えるか確認 (nvidia-smi の結果が表示されれば OK)
+docker run --rm --gpus all nvcr.io/nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04 nvidia-smi
 ```
+
+### プロキシ環境 (学内ネットワーク) での設定
+
+学内ネットワークでは、Docker に関して 2 種類のプロキシ設定が必要です。
+
+| 設定 | 役割 | 誰が設定するか |
+|---|---|---|
+| Docker デーモンのプロキシ | `docker pull` などでイメージを取得する | 管理者 (`docker_install.sh` が設定済み) |
+| Docker クライアントのプロキシ (`~/.docker/config.json`) | ビルド中の `apt-get` / `pip install` や、コンテナ内からのインターネット接続 | **各ユーザー** |
+
+`~/.docker/config.json` に以下を記述しておくと、ビルド時とコンテナ起動時にプロキシの環境変数 (`http_proxy` / `https_proxy` など) が自動的に渡されます。
+
+```json
+{
+  "proxies": {
+    "default": {
+      "httpProxy": "http://proxy.itc.kansai-u.ac.jp:8080/",
+      "httpsProxy": "http://proxy.itc.kansai-u.ac.jp:8080/",
+      "noProxy": "localhost,127.0.0.1"
+    }
+  }
+}
+```
+
+> Dockerfile に `ENV http_proxy=...` と直接書く方法もありますが、学外でそのイメージが使えなくなるため推奨しません。
 
 ---
 
@@ -187,6 +393,13 @@ docker rm -f mycontainer
 # 停止中のコンテナをまとめて削除
 docker container prune
 
+# コンテナを一時停止 / 再開 (プロセスを凍結するだけで、メモリ上の状態は保持される)
+docker pause mycontainer
+docker unpause mycontainer
+
+# コンテナの CPU・メモリ使用量をリアルタイムで確認
+docker stats
+
 # コンテナのログを確認
 docker logs mycontainer
 docker logs -f mycontainer  # リアルタイムで流し続ける
@@ -251,6 +464,11 @@ nvcr.io  /  nvidia/cuda  :  11.7.1-cudnn8-devel-ubuntu22.04
 レジストリ    リポジトリ名             タグ (バージョン)
 (省略時は docker.io = Docker Hub)
 ```
+
+> **NGC (NVIDIA GPU Cloud) について**  
+> [NGC カタログ](https://catalog.ngc.nvidia.com/containers) では、CUDA のベースイメージのほか、PyTorch や TensorFlow をインストール済みのイメージ (`nvcr.io/nvidia/pytorch:<タグ>` など) が公開されています。  
+> 各イメージに含まれる CUDA・PyTorch のバージョンは [Release Notes](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/index.html) で確認できます。  
+> 本環境で使用する `nvcr.io/nvidia/cuda` はログインなしで取得できます。ログインが必要なイメージを使う場合は、NGC で API Key を発行し、`docker login nvcr.io` (Username は `$oauthtoken`、Password は API Key) を実行します。
 
 ### 5-2. Dockerfile からイメージをビルドする
 
@@ -535,6 +753,9 @@ volumes:
 
 ## 8. この環境のセットアップ手順
 
+> [クイックスタート](#クイックスタート) と同じ環境を、各ステップの意味を説明しながら構築します。  
+> クイックスタートを実行済みの場合、あらためて実行する必要はありません。
+
 ### 8-1. 環境仕様
 
 | 項目 | 内容 |
@@ -584,6 +805,12 @@ ls ~/Programs/docker-pytorch/
 このリポジトリから、`Dockerfile` と `docker-compose.yml` を個別にダウンロードします。  
 ダウンロードしたファイルは、`docker-pytorch`の中に保存してください。
 
+```bash
+cd ~/Programs/docker-pytorch
+wget https://raw.githubusercontent.com/meruemon/Ubuntu-Setup/main/python_env/docker-pytorch/Dockerfile
+wget https://raw.githubusercontent.com/meruemon/Ubuntu-Setup/main/python_env/docker-pytorch/docker-compose.yml
+```
+
 ダウンロード後の確認:
 
 ```bash
@@ -618,6 +845,9 @@ ARG USER_GID=1001      # ← id コマンドで確認した gid
 > **なぜ UID を合わせるのか？**  
 > ホストとコンテナの UID が一致していないと、`workspace/` 内のファイルが  
 > `root` 所有になり、ホスト側から編集できなくなることがあります。
+
+> 学内ネットワークでは、ビルド前に `~/.docker/config.json` のプロキシ設定も必要です。  
+> → [プロキシ環境 (学内ネットワーク) での設定](#プロキシ環境-学内ネットワーク-での設定)
 
 ### 8-6. docker-compose.yml の変更可能な項目
 
@@ -928,6 +1158,39 @@ print("計算結果デバイス  :", z.device)  # cuda:0
 ---
 
 ## 12. トラブルシューティング
+
+### `permission denied while trying to connect to the Docker daemon socket` と表示される
+
+自分のユーザーが `docker` グループに所属していません。
+
+```bash
+# groups に docker が含まれているか確認
+id
+```
+
+含まれていない場合は、管理者に `docker` グループへの追加を依頼してください ([手順](../../ubuntu_install.md#5-11-docker-のインストール))。  
+追加後は、一度ログアウトしてログインし直すと有効になります。
+
+### ビルド中の `apt-get update` や `pip install` が接続エラー・タイムアウトで失敗する
+
+学内ネットワークでは、ビルド時にもプロキシの設定が必要です。
+
+```bash
+# プロキシ設定が書かれているか確認
+cat ~/.docker/config.json
+```
+
+未設定の場合は [プロキシ環境 (学内ネットワーク) での設定](#プロキシ環境-学内ネットワーク-での設定) を行い、ビルドし直してください。  
+それでも失敗する場合は、ビルド引数でプロキシを直接指定します。
+
+```bash
+docker compose build \
+    --build-arg http_proxy=http://proxy.itc.kansai-u.ac.jp:8080/ \
+    --build-arg https_proxy=http://proxy.itc.kansai-u.ac.jp:8080/
+docker compose up -d
+```
+
+逆に、学外のネットワークでは `~/.docker/config.json` のプロキシ設定が残っていると接続に失敗します。その場合は `"proxies"` の項目を削除してください。
 
 ### `docker compose up` でエラーが出る
 

@@ -17,9 +17,6 @@ services:
     ports:
       - "8888:8888"
 
-    # コンテナをユーザ yoshida (uid/gid=1001) で実行
-    user: "1001:1001"
-
     # 標準入力を保持して bash セッションを維持
     stdin_open: true
     tty: true

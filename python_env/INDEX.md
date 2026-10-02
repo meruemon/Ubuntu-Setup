@@ -36,10 +36,17 @@ GPU なし → venv  (軽量・シンプル)
 
 → **[Docker 環境リファレンス](./docker-pytorch/README.md)**
 
+取り急ぎ環境を作って Jupyter Notebook や PyTorch の開発を始めたい場合は、  
+冒頭の **[クイックスタート](./docker-pytorch/README.md#クイックスタート)** だけを実行してください。
+
+> Docker 本体のインストールと `docker` グループへの追加は管理者が行います。  
+> → [Ubuntu 24.04 インストールと初期設定ガイド](../ubuntu_install.md#5-11-docker-のインストール)
+
 ### 目次
 
 | # | セクション |
 |---|---|
+| 0 | クイックスタート (環境構築 → Jupyter Notebook / PyTorch 開発) |
 | 1 | Docker とは？ |
 | 2 | イメージとコンテナの概念 |
 | 3 | Docker のインストール確認 |
